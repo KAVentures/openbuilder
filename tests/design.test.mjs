@@ -7,6 +7,7 @@ import {scaffold} from '../lib/scaffold.mjs';
 import {evaluateDesign} from '../lib/design-review.mjs';
 import {designAction} from '../lib/design.mjs';
 import {release} from '../lib/release.mjs';
+import {spawnSync} from 'node:child_process';
 
 async function fixture(t,template='web'){
  const dir=await fs.mkdtemp(path.join(os.tmpdir(),'ob-design-'));
@@ -79,4 +80,27 @@ test('release fails a website before design stage is complete',async t=>{
  const design=result.steps.find(s=>s.name==='Visual design review');
  assert.equal(design.status,'blocked');
  assert.match(design.detail,/not ready/);
+});
+
+test('generated app CI accepts an untouched starter but blocks customized UI without design evidence',async t=>{
+ const app=await fixture(t,'web');
+ const run=()=>spawnSync(process.execPath,['scripts/design-check.mjs'],{cwd:app,encoding:'utf8'});
+ const fresh=run();
+ assert.equal(fresh.status,0,fresh.stderr);
+ const page=path.join(app,'app','page.tsx');
+ await fs.appendFile(page,'\n// Updated product design\n');
+ const changed=run();
+ assert.equal(changed.status,1,changed.stdout+changed.stderr);
+ assert.match(changed.stderr,/BLOCKED/);
+ await fs.writeFile(path.join(app,'design-review.json'),JSON.stringify(completePlan(),null,2));
+ assert.equal(run().status,0);
+});
+test('generated game CI also blocks custom UI until a documented design review exists',async t=>{
+ const app=await fixture(t,'game');
+ const run=()=>spawnSync(process.execPath,['scripts/design-check.mjs'],{cwd:app,encoding:'utf8'});
+ assert.equal(run().status,0);
+ await fs.appendFile(path.join(app,'style.css'),'\n/* Custom design */\n');
+ assert.equal(run().status,1);
+ await fs.writeFile(path.join(app,'design-review.json'),JSON.stringify(completePlan(),null,2));
+ assert.equal(run().status,0);
 });
