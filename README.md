@@ -1,99 +1,166 @@
 # OpenBuilder
 
-**Build, test, and launch websites and browser games with the AI you already use.** Open source (MIT), chat-native, local-first, with explicit safeguards against preview loops, leaked secrets, and premature deployment.
+**Build websites, web apps and browser games with the AI you already use.**
 
-> **Status: v0.1 MVP.** Working Node CLI, two starter templates, bounded retry state, static audit, guarded release checklist, and guidance for using existing AI connectors. **Not** yet a hosted ChatGPT plugin, universal in-chat preview, automated provider provisioning, or a full security certification.
+OpenBuilder is a free, open-source workflow for ChatGPT, Claude, Codex and other coding-capable AI assistants. It brings together app templates, plain-English onboarding, local previews, repeatable checks and release safeguards—so you can focus on what you want to build, not on configuring infrastructure.
 
-## Two ways to get started
+[![CI](https://github.com/KAVentures/openbuilder/actions/workflows/ci.yml/badge.svg)](https://github.com/KAVentures/openbuilder/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-43853D)](package.json)
+[![GitHub](https://img.shields.io/badge/source-GitHub-181717?logo=github)](https://github.com/KAVentures/openbuilder)
 
-**For existing AI chats:** Open this repository in a coding-capable ChatGPT, Claude, or other compatible agent with GitHub access. Ask:
+[**Get started in 60 seconds →**](docs/GETTING_STARTED.md) · [How it works](#how-it-works) · [Features](#whats-included) · [FAQ](docs/FAQ.md) · [Contribute](CONTRIBUTING.md)
 
-> "Use https://github.com/KAVentures/openbuilder as my app-building playbook. Follow AGENTS.md and skills/openbuilder/SKILL.md. Build me a [describe your app/game]. Avoid Vercel previews while iterating. Guide me through connecting only the accounts we need and run the OpenBuilder checks before launch."
+> [!IMPORTANT]
+> **Current status: early open-source MVP (v0.1).** OpenBuilder is an AI playbook plus a small local CLI—not yet a hosted plugin, a full Lovable-style visual editor, or an automatic one-click cloud deployment service. What it can do depends on which file-editing, terminal and provider tools your AI actually has.
 
-The AI must actually have the right file editing/execution and integration tools; a plain chat interface without tool access cannot execute local commands or host a preview. You can still use the instructions and have it create files through a GitHub connector.
+## The easiest way: paste into your AI chat
 
-**With the local CLI (Node.js 20+):**
+Open ChatGPT, Claude or another AI that can read GitHub repositories. Connect **GitHub** to your AI if it asks for access, then paste this prompt:
 
-```bash
+~~~text
+I want to build an app using OpenBuilder:
+https://github.com/KAVentures/openbuilder
+
+Read AGENTS.md and skills/openbuilder/SKILL.md in that repository
+and follow their instructions. Help me build [DESCRIBE YOUR APP OR GAME].
+
+Check which tools and account connections you actually have.
+Explain any setup in simple steps, connect services only when needed,
+work in a separate app repository, test before deployment, avoid
+unnecessary Vercel previews, and never put secrets in frontend code.
+Tell me clearly what you can and cannot verify.
+~~~
+
+**Example:** replace the bracketed part with *"a website where customers can book appointments and receive email confirmations"* or *"a mobile-friendly trivia game with a leaderboard."*
+
+**No separate AI subscription required by OpenBuilder.** You use whichever supported AI you already have; plan allowances, tools and external infrastructure charges still apply.
+
+**Important:** Pasting a URL is enough to *start*, not a guarantee of fully automated development. The assistant must be able to retrieve this repository and edit files. A terminal, GitHub write integration or capable coding environment is needed to actually build; ordinary chat may only be able to plan or draft changes. [Exact ChatGPT/Claude setup →](docs/GETTING_STARTED.md#1-use-openbuilder-in-an-existing-ai-chat)
+
+## Prefer Claude Code or Codex?
+
+If you already have either coding agent installed, you can run OpenBuilder directly in it. Both tools use instructions already included in this repository.
+
+**Claude Code**
+
+~~~bash
+git clone https://github.com/KAVentures/openbuilder.git
+cd openbuilder
+claude
+~~~
+
+**Codex CLI**
+
+~~~bash
+git clone https://github.com/KAVentures/openbuilder.git
+cd openbuilder
+codex
+~~~
+
+Then ask: **"Use OpenBuilder to make me a mobile-friendly habit tracker. Put the app in projects/habit-tracker, not in the toolkit itself. Test locally and only deploy after the release checks."**
+
+Need to install Claude Code or Codex first? See [the complete beginner guide](docs/GETTING_STARTED.md#2-use-claude-code-or-codex-on-your-computer). New projects under `projects/` are ignored by this toolkit's Git history; create a **separate GitHub repo for your app** before sharing it.
+
+## Or run the local CLI yourself
+
+Requires Git and **Node.js 20+**. No OpenBuilder account, OpenBuilder-hosted server, AI API key or database is needed for the included starter games.
+
+~~~bash
 git clone https://github.com/KAVentures/openbuilder.git
 cd openbuilder
 npm test
-node bin/openbuilder.mjs init my-first-game --template game
-node bin/openbuilder.mjs preview my-first-game
-# or for a server-rendered web app:
-node bin/openbuilder.mjs init my-first-web --template web
-cd my-first-web && npm install && npm run dev
-```
 
-The templates are copied into new folders. You own all code and provider accounts. The builder never stores provider credentials.
+# Make a playable browser game
+node bin/openbuilder.mjs init my-game --template game
+node bin/openbuilder.mjs preview my-game
+~~~
 
-## Commands
+Open **http://127.0.0.1:4173** in the browser on the same computer. No Vercel preview is created.
 
-| Command | Effect |
-|---|---|
-| `init NAME --template web\|game` | Creates a Next.js web app or playable static browser game |
-| `preview PATH [--port N]` | Local-only preview on 127.0.0.1, **no Vercel calls** |
-| `check PATH [--json] [--strict]` | Detects common secret, Git and deployment risks; flags unverified areas |
-| `retry allow\|record --kind preview\|deploy --signature TEXT --project PATH` | Durable retry budget; blocks repeated identical failures |
-| `retry reset --reason TEXT --project PATH` | Explicit reset after investigating failure |
-| `release PATH [--json]` | Runs static audit, project tests/build, and reads manually attested launch gates; **does not deploy** |
+For a Next.js web application:
 
-### Why no automatic Vercel previews?
+~~~bash
+node bin/openbuilder.mjs init my-web-app --template web
+cd my-web-app
+npm install
+npm run dev
+~~~
 
-Both templates include `vercel.json` with `git.deploymentEnabled: false`. Preview locally, build and test, then deploy explicitly after the release gate. Even Vercel's "Ignored Build Step" can count cancelled deployments, so preventing Git-triggered deployments is the more dependable default. If you use Vercel, verify the actual project settings independently.
+Then open **http://localhost:3000**. The web starter contains a homepage, error/404 pages, starter SEO files and *clearly labelled placeholder* privacy/terms pages. It is **not** a finished production app.
 
-### How the launch gate works
+[All commands and workflows →](docs/GETTING_STARTED.md#3-use-the-local-cli-without-an-ai-agent)
 
-`release` is **blocked by default** until project tests, production build, and all applicable manual gates have evidence. Write local evidence in `.openbuilder/launch-evidence.json` (ignored by Git). Each attestation has `verified: true`, an ISO timestamp `at`, and useful `notes` (15+ characters), e.g.:
+## How it works
 
-```json
-{
-  "checks": {
-    "rollback": {
-      "verified": true,
-      "at": "2026-10-14T12:00:00Z",
-      "notes": "Reverted a test deploy in staging and confirmed previous version."
-    }
-  }
-}
-```
+~~~text
+Your idea, in plain English
+           |
+           v
+Your existing AI (ChatGPT / Claude / Codex / other capable agent)
+           |
+           v
+OpenBuilder instructions + app templates + local checks
+           |
+           +--> GitHub   - your application's source code
+           +--> Supabase - database / login, only if needed
+           +--> Resend   - transactional email, only if needed
+           +--> Vercel   - hosting / domain, when ready to launch
+           |
+           v
+Test locally --> review security and launch requirements
+           |
+           v
+Explicit deployment --> live smoke tests --> your app
+~~~
 
-Other required keys are printed by `release --json`. **Attestations are user claims**, not independent testing. The release command does not inspect live providers, perform penetration testing, guarantee legal compliance, or deploy. Do not fabricate evidence to make a gate green.
+Accounts and connected tools belong to **you**. OpenBuilder does not require giving it credentials, and it does not automatically provision or bill services.
 
-## What's built vs still to build
+## What's included
 
-| Area | v0.1 |
-|---|---|
-| Chat-native skill and agent instructions | ✅ |
-| Local web/game starter templates | ✅ |
-| Local browser preview (desktop) | ✅ |
-| Retry budget, audit, manual release gate | ✅ |
-| Security + SEO checklists and onboarding | ✅ |
-| GitHub Actions CI for toolkit | ✅ |
-| Automatically provision Supabase/Vercel/Resend via chat tools | Not yet; agents use existing connected provider tools |
-| Interactive preview embedded in normal AI chats | Not universal; subject to each host's UI/runtime support |
-| Hosted multi-provider MCP orchestration server | Not yet |
-| Browser-level end-to-end tests for generated apps | Later |
-| Tested database restores, mail deliverability, production load tests | Must be run against real accounts |
+| Area | Included today |
+| --- | --- |
+| **AI playbook** | [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md) and [portable agent skill](skills/openbuilder/SKILL.md) |
+| **Templates** | Next.js/TypeScript web starter and a playable mobile-friendly HTML Canvas game |
+| **Local previews** | Local dev server—no automatic Vercel deployment to view changes |
+| **Retry limits** | A CLI-backed retry ledger that agents can consult; **does not intercept** unrelated provider calls |
+| **Security audit** | Static checks for some credential exposures, tracked env files and unsafe configuration; not a full security audit |
+| **Launch review** | Feature-aware checklist, local tests/build and manually supplied evidence; production checks remain separate |
+| **SEO guidance** | Sitemap, metadata, indexing, crawlability, performance and editorial checklist |
+| **Beginner onboarding** | Plain-language setup for [GitHub, Supabase, Vercel and Resend](docs/CONNECTORS.md) |
+| **Open source** | [MIT license](LICENSE), contributor guide, security policy, and GitHub Actions checks |
 
-## Important boundaries
+## Keeping cloud previews and costs under control
 
-- ChatGPT Plus / Claude and other chat subscriptions have provider-specific limits, tool availability and terms. This repository **does not** bypass rate limits or convert chat subscriptions into generic API access.
-- Avoid using powerful database service-role keys in client applications. A Supabase publishable/anon key is different: it is designed for public clients **only when the database and storage policies are correctly locked down**.
-- No provider signup, purchase, production push, payment, secret rotation or domain change happens automatically. Ask for consent where required.
-- Security scanning is intentionally conservative and incomplete. High-risk projects need specialist review. The generated policy pages are visibly **placeholders**.
+OpenBuilder's starter templates disable automatic Git-triggered Vercel builds by default. Agents are instructed to check syntax, run tests and preview locally *before* triggering a deployment. The retry ledger stops an agent following it from repeatedly issuing the same failed preview/deploy action.
 
-## Guides
+This is an **opt-in workflow**, not a guarantee that ChatGPT or Claude can automatically block every Vercel deployment. Check the actual Vercel project settings before relying on preview suppression. Domain purchases, production deployment, database changes and paid-provider setup should be explicitly approved.
 
-- [Agent playbook](AGENTS.md)
-- [Beginner connection instructions](docs/CONNECTORS.md)
-- [20-point launch checklist and SEO checks](docs/LAUNCH.md)
+## What it does **not** do yet
+
+- No universally installed ChatGPT, Claude or Grok plugin; the GitHub repository is **not** itself a one-click plugin.
+- No full Lovable-style visual canvas or guaranteed preview embedded in AI chat.
+- No fully automated Supabase, Vercel, GitHub and Resend OAuth provisioning.
+- No automatic security certification, compliance/legal review, SEO ranking, backup restore, email deliverability or payment end-to-end verification.
+- No unlimited model usage. Your AI subscription and external cloud providers have their own limits and pricing.
+
+We prefer clear, working functionality over green checkmarks for things that have not been tested. See [architecture and roadmap](docs/ARCHITECTURE.md).
+
+## Documentation
+
+- [Start here: ChatGPT, Claude Code, Codex and CLI](docs/GETTING_STARTED.md)
+- [Connecting GitHub, Supabase, Vercel and Resend](docs/CONNECTORS.md)
+- [Security, launch checklist and SEO](docs/LAUNCH.md)
+- [Frequently asked questions](docs/FAQ.md)
 - [Architecture and roadmap](docs/ARCHITECTURE.md)
-- [Security policy](SECURITY.md)
-- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md) · [Contributing](CONTRIBUTING.md) · [MIT license](LICENSE)
 
-## Why this exists
+## Contributing
 
-The difficult part of AI-built software is often not writing the first component. It is connecting accounts, diagnosing errors without blindly retrying, keeping credentials out of Git, testing real user flows, and shipping responsibly. OpenBuilder packages those practices as reusable instructions plus executable guardrails.
+OpenBuilder is community-driven. Bug reports, clearer onboarding instructions, reliable templates, provider adapters and **reproducible tests** are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-MIT licensed. Built by contributors; not affiliated with OpenAI, Anthropic, GitHub, Supabase, Vercel or Resend.
+## License
+
+[MIT](LICENSE) © 2026 KAVentures and OpenBuilder contributors.
+
+OpenBuilder is an independent open-source project and is not affiliated with or endorsed by OpenAI, Anthropic, GitHub, Supabase, Vercel or Resend.

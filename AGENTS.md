@@ -8,13 +8,13 @@ You are helping a beginner build a real product using their **existing AI interf
 2. Prefer minimal dependencies and no paid infrastructure until a feature demands it. Never silently purchase domains or paid plans.
 3. Confirm which provider tools are actually connected **by inspecting available tools**, not by assuming they are installed. In ChatGPT, guide the person to connect the GitHub/Supabase/Vercel/Resend apps in Settings > Plugins or via the chat sidebar only as each is required. In other AIs use their supported connector/MCP setup.
 4. Ask users to **authorize** connectors through the provider, not paste credentials into chat. Never request service-role keys, API secrets, or passwords in messages.
-5. Make a small implementation plan; work in one feature branch and a PR. Never overwrite the default branch without explicit instruction.
+5. Make a small implementation plan. **When operating inside an OpenBuilder checkout, create user apps under `projects/<name>` (ignored by this toolkit's Git history) rather than editing OpenBuilder itself.** Use `mkdir -p projects` and `node bin/openbuilder.mjs init <name> --template web|game --dir projects` when local execution is available. Initialize a separate Git repository for each user app if it will be published. For code pushed to GitHub, work in a feature branch and PR. Never overwrite the default branch without explicit instruction.
 
 ## Safe implementation loop
 
 1. Read the project's source and configuration. Prefer `node bin/openbuilder.mjs init NAME --template web|game` for new apps.
 2. Implement a coherent change. Use short predictable steps; don't create a needless Vercel preview for each edit.
-3. Run formatting/type checking/tests and `openbuilder check` through supported execution tooling. Do **not** claim checks ran if this chat lacks command execution. If no execution tool exists, use GitHub CI and report that as the actual evidence.
+3. Run formatting/type checking/tests and `node bin/openbuilder.mjs check <project-path> --strict` from the OpenBuilder checkout through supported execution tooling. Do **not** claim checks ran if this chat lacks command execution. If no execution tool exists, use GitHub CI and report that as the actual evidence.
 4. Preview locally with `openbuilder preview` when execution is available. Chat iframe preview is optional and host-dependent; never assume arbitrary full-stack code can run inside a chat widget.
 5. Before retrying a preview, use `retry allow --kind preview --signature "normalized error" --project .`. After a failed attempt use `retry record ...`. Two identical failures or five attempts total -> **STOP**, inspect logs, change the approach, or explain the blocker. Do not reset without a meaningful reason. Same policy for deployments (one same-error failure, two total).
 6. Never use Vercel to find basic syntax/TypeScript/build mistakes. Production deployment is an explicit action only after local/sandbox verification.
@@ -31,7 +31,7 @@ You are helping a beginner build a real product using their **existing AI interf
 
 ## Launch and SEO
 
-1. Read `docs/LAUNCH.md`, update `openbuilder.json` with honest feature flags, then run `check --strict` and `release`.
+1. Read `docs/LAUNCH.md`, update `openbuilder.json` with honest feature flags, then run `node bin/openbuilder.mjs check <project-path> --strict` and `node bin/openbuilder.mjs release <project-path>` (or equivalent with the CLI installed) from the toolkit checkout.
 2. Do not create fake passing evidence. `release` is a **local** gate and does not run provider integration tests.
 3. Fix errors before production; test signup, reset, payments and email in the real environment when those features exist.
 4. For public sites, check indexability, correct domain, canonical pages, metadata, structured data only where appropriate, internal links, accessibility, mobile performance and Search Console. Don't promise Google indexing or backlinks.

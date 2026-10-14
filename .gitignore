@@ -9,3 +9,7 @@ coverage/
 !.env.example
 *.log
 .DS_Store
+
+# App workspaces created when running Claude Code or Codex inside this toolkit.
+# Initialize a separate Git repository for any project you want to publish.
+projects/
