@@ -14,6 +14,37 @@ async function fixture(t,template='web'){
  t.after(()=>fs.rm(dir,{recursive:true,force:true}));
  return await scaffold({name:'design-project',template,parent:dir});
 }
+function researchFixture(){
+ const now=new Date().toISOString();
+ const hosts=['https://clinic-style-one.com','https://clinic-style-two.com','https://clinic-style-three.com'];
+ const scores=[5,4,3];
+ return {
+  status:'researched',industry:'Independent healthcare practices targeting mobile visitors',
+  queries:['healthcare clinic website designs Sweden','modern independent clinic websites Europe'],
+  candidates:hosts.map((url,i)=>({
+   url,inspectedAt:now,visualScore:scores[i],
+   visualEvidence:'Browser screenshot of homepage stored in test evidence for candidate '+(i+1),
+   selectionRationale:'Well composed hero section and mobile responsive navigation evaluated for candidate '+(i+1),
+   observations:{
+    layout:'Observed asymmetrical hero composition and modular content hierarchy on landing page.',
+    typography:'Observed readable large editorial headings and a clean sans-serif body font stack.',
+    color:'Observed restrained surface contrast and warm muted accent color relationships.',
+    motion:'Observed subtle button hover and short scroll reveal transitions in the rendered page.',
+    mobile:'Observed responsive menu, stacked content and generous finger-sized tap targets.'
+   }
+  })),
+  selectedUrl:hosts[0],whyChosen:'',
+  adaptedPatterns:['Use a split hero with original imagery and site-specific content.',
+   'Introduce an editorial heading scale paired with licensed readable sans text.',
+   'Implement a restrained original hover transition with reduced-motion support.'],
+  originality:{
+   distinctBrand:'Create a new name, logo, custom section structure, and original service copy.',
+   assetsAndFonts:'Use new properly licensed typefaces, icons and photographs rather than copying reference assets.',
+   effects:'Reimplement general interaction principles in authored CSS without copying scripts or shaders.',
+   fit:'Remove distraction-heavy animations and prioritize booking clarity and accessibility.'
+  }
+ };
+}
 function completePlan(){
  const reviews={};
  for(const key of ['mobile','accessibility','performance','visual'])
@@ -28,7 +59,8 @@ function completePlan(){
   pages:[{route:'/',purpose:'Explain the service and let visitors begin the booking flow.',
    mobile:'Stack content clearly in a single column with touch-friendly actions.'}],
   superdesign:{status:'unavailable',projectId:'',draftId:'',implementation:'',
-   reason:'This evaluation agent has no SuperDesign shell/CLI access; the design was manually reviewed.'},
+   reason:'This evaluation agent has no SuperDesign shell/CLI access; competitor sites were visually reviewed.'},
+  competitorResearch:researchFixture(),
   canvasUi:{decision:'not-suitable',component:'',implementation:'',
    reason:'GPU effects would distract from appointments and reduce performance on older phones.'},
   review:reviews
@@ -151,4 +183,47 @@ test('authorized SuperDesign and Canvas UI commands actually invoke their execut
   if(oldLog===undefined)delete process.env.OPENBUILDER_DESIGN_TEST_LOG;
   else process.env.OPENBUILDER_DESIGN_TEST_LOG=oldLog;
  }
+});
+
+test('SuperDesign fallback cannot pass with generic inspiration or missing competitors',async t=>{
+ const app=await fixture(t);
+ const p=completePlan();delete p.competitorResearch;
+ await fs.writeFile(path.join(app,'design-review.json'),JSON.stringify(p));
+ const result=await evaluateDesign(app);
+ assert.equal(result.ready,false);
+ assert.ok(result.issues.some(x=>x.includes('live competitor research')));
+});
+test('fallback rejects single competitors, SEO snippets and fake localhost domains',async t=>{
+ const app=await fixture(t);
+ const p=completePlan();
+ p.competitorResearch.candidates=p.competitorResearch.candidates.slice(0,1);
+ p.competitorResearch.candidates[0].url='http://localhost:3000';
+ p.competitorResearch.candidates[0].visualEvidence='Google snippet';
+ await fs.writeFile(path.join(app,'design-review.json'),JSON.stringify(p));
+ const result=await evaluateDesign(app);
+ assert.equal(result.ready,false);
+ assert.ok(result.issues.some(x=>x.includes('three distinct')));
+});
+test('fallback requires real visual observations, originality and selection rationale',async t=>{
+ const app=await fixture(t);
+ const p=completePlan();
+ p.competitorResearch.candidates[0].observations.typography='';
+ p.competitorResearch.originality.assetsAndFonts='';
+ p.competitorResearch.selectedUrl=p.competitorResearch.candidates[2].url;
+ await fs.writeFile(path.join(app,'design-review.json'),JSON.stringify(p));
+ const result=await evaluateDesign(app);
+ assert.equal(result.ready,false);
+ assert.ok(result.issues.some(x=>x.includes('typography')));
+ assert.ok(result.issues.some(x=>x.includes('fonts')));
+ assert.ok(result.issues.some(x=>x.includes('scores below')));
+});
+test('real SuperDesign evidence does not require fallback research',async t=>{
+ const app=await fixture(t);
+ const p=completePlan();
+ p.superdesign={status:'used',projectId:'prj-real-project-fixture',draftId:'draft-fixture-id',
+  implementation:'Implemented selected SuperDesign draft into responsive React components.'};
+ delete p.competitorResearch;
+ await fs.writeFile(path.join(app,'design-review.json'),JSON.stringify(p));
+ const result=await evaluateDesign(app);
+ assert.equal(result.ready,true,JSON.stringify(result.issues));
 });

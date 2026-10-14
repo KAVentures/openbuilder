@@ -197,3 +197,7 @@ node bin/openbuilder.mjs design check --project ../my-app
 ~~~
 
 Generated web/game projects ship a `design-review.json` that **starts pending** and an `npm run design:check` command. OpenBuilder's `release` blocks until the design has been genuinely reviewed. This is a stronger workflow, **not a guarantee of subjective beauty** or a claim SuperDesign ran in ordinary shell-less chat. Canvas UI installation remains selective, license-aware and approval-gated.
+
+### Reference-driven design when SuperDesign is unavailable
+
+Instead of a generic AI theme, agents with browser/search access must **research actual competitor websites in the target field**, inspect at least three rendered pages, compare their visual quality and choose a strong reference. OpenBuilder then adapts its design patterns (layout, typography categories, color relationships and effects) into **original implementation** with the new product's branding and licensed fonts/assets. A high search rank is not the same as excellent design. The app records real source URLs and observations in `competitorResearch`; if tools cannot visually inspect those sites, the release gate stays incomplete. [See the fallback instructions](docs/COMPETITOR_DESIGN.md).

@@ -47,5 +47,20 @@
       "done": false,
       "evidence": ""
     }
+  },
+  "competitorResearch": {
+    "status": "pending",
+    "industry": "",
+    "queries": [],
+    "candidates": [],
+    "selectedUrl": "",
+    "whyChosen": "",
+    "adaptedPatterns": [],
+    "originality": {
+      "distinctBrand": "",
+      "assetsAndFonts": "",
+      "effects": "",
+      "fit": ""
+    }
   }
 }

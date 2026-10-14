@@ -41,3 +41,11 @@ This is not part of the default template. Review imported code, licensing and de
 ## A simple design requirement
 
 Design quality comes from thoughtful hierarchy, navigation, legibility and performance, not from applying glass/particle effects everywhere.
+
+## Required research-led fallback when SuperDesign cannot run
+
+Do not just imagine a polished website. **Use actual search and browser tools** to find at least three field-specific competitors, inspect their rendered desktop/mobile designs, and select a visual reference based on layout quality, typography, interactions, accessibility and relevance. Search-engine rank measures relevance, not beauty.
+
+Extract useful *patterns* from that reference and reimplement them in the new app's unique brand. Do not copy logos, original imagery, text, proprietary source, unlicensed fonts or near-identical recognizable identity. Canvas UI remains an optional lawfully licensed effects source after separate review.
+
+Complete `competitorResearch` with real evidence in the app's `design-review.json`; the design gate now **requires** it whenever SuperDesign's status is `unavailable` or `declined`. A chat without visual browsing cannot truthfully complete this step. Full workflow and schema: [COMPETITOR_DESIGN.md](COMPETITOR_DESIGN.md).
