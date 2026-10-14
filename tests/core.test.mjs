@@ -62,7 +62,7 @@ test('release gate requires tests, build, and external attestations',async t=>{
   await fs.writeFile(path.join(dir,'package.json'),JSON.stringify({scripts:{test:'node --eval "process.exit(0)"',build:'node --eval "process.exit(0)"'}}));
   const before=await release(dir);
   assert.equal(before.ready,false);
-  const git=(args)=>execFileSync('git',args,{cwd:dir,stdio:'ignore'});git(['init']);git(['config','user.name','OpenBuilder Tests']);git(['config','user.email','tests@example.invalid']);git(['add','.']);git(['commit','-m','fixture']);const revision=execFileSync('git',['rev-parse','HEAD'],{cwd:dir,encoding:'utf8'}).trim();
+  const git=(args)=>execFileSync('git',args,{cwd:dir,stdio:'ignore'});git(['init']);git(['config','user.name','OpenBuilder Tests']);git(['config','user.email','tests@example.invalid']);git(['add','.']);git(['commit','-m','fixture']);git(['remote','add','origin','https://github.com/example/test-app.git']);const revision=execFileSync('git',['rev-parse','HEAD'],{cwd:dir,encoding:'utf8'}).trim();
   const attest={};for(const step of before.steps.filter(x=>x.name.startsWith('Manual: '))){attest[step.name.slice(8)]={verified:true,notes:'Confirmed by an actual external test',at:new Date().toISOString(),commitSha:revision};}
   await fs.mkdir(path.join(dir,'.openbuilder'));
   await fs.writeFile(path.join(dir,'.openbuilder','launch-evidence.json'),JSON.stringify({checks:attest}));
@@ -199,4 +199,19 @@ test('publishing templates is dry-run by default and never needs GitHub credenti
  assert.match(cli,/DRY RUN ONLY/);
  assert.match(cli,/openbuilder-web-template/);
  assert.match(cli,/openbuilder-game-template/);
+});
+
+test('release explicitly blocks if GitHub source repository is not linked',async t=>{
+ const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ const game=await scaffold({name:'unlinked-game',template:'game',parent:dir});
+ const git=args=>execFileSync('git',args,{cwd:game,stdio:'ignore'});
+ git(['init']);git(['config','user.name','OpenBuilder Tests']);git(['config','user.email','tests@example.invalid']);
+ git(['add','.']);git(['commit','-m','initial']);
+ const before=await release(game);
+ const missing=before.steps.find(x=>x.name==='GitHub source repository');
+ assert.equal(missing.status,'blocked');
+ assert.match(missing.detail,/connect an existing GitHub repo|approve a new private repo/);
+ git(['remote','add','origin','https://github.com/sample/test-app.git']);
+ const after=await release(game);
+ assert.equal(after.steps.find(x=>x.name==='GitHub source repository').status,'pass');
 });

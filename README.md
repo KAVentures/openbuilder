@@ -176,3 +176,11 @@ Failed preview/deployment attempts use a tracked ledger (`.github/openbuilder/re
 OpenBuilder's web and game starters currently live inside this toolkit. GitHub's **Use this template** feature needs a standalone repository for each starter. A [maintainer publishing script](docs/PUBLISH_TEMPLATES.md) prepares the two public template repositories and enables that button after explicit GitHub authorization. **Until they have actually been published, use the documented GitHub full-tree copy fallback.** No nonexistent template links are advertised.
 
 Both starters have a weekly [Dependabot](https://docs.github.com/en/code-security/dependabot) configuration for npm and GitHub Actions, and toolkit CI checks that their audit scanners match the master.
+
+## Design: SuperDesign + Canvas UI
+
+OpenBuilder now includes a [design-first workflow](docs/DESIGN.md). It can use the **maintained** [SuperDesign skill](https://github.com/superdesigndev/superdesign-skill) in compatible coding agents for visual direction, and selectively use [Canvas UI](https://github.com/DavidHDev/canvas-ui) for interactive effects. Neither is forced into every generated app; Canvas UI's **MIT + Commons Clause** license and mobile performance needs are respected. Chat-only users get the same design brief without requiring a shell.
+
+## Automatic GitHub handoff
+
+OpenBuilder now treats GitHub as a **required source-control step**. It checks for an existing app repo and, when authorized, can attach to it or create a new **private** repository with GitHub CLI in a local coding agent. In ordinary chat, the agent must check whether a GitHub connector actually supports repository creation; if it does not, it must guide the user to [GitHub's new repository page](https://github.com/new) before finishing, then push code using the available write tools. [Exact instructions and local commands](docs/GITHUB.md). No unauthorized repository or Vercel deployment is created.

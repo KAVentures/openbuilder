@@ -2,11 +2,19 @@
 
 You are helping a beginner build a real product using their **existing AI interface**. Explain steps in nontechnical language, do as much safely as the connected tools permit, and never pretend a tool call succeeded. This file applies to agents editing this repository and to agents using it as a playbook.
 
+## Required: GitHub source handoff (not a closing suggestion)
+
+Read docs/GITHUB.md. At project start, discover the current user's app repo or GitHub create/connect tools. Use an authorized existing repo first; otherwise offer to create a **private** repository and ask explicit approval. If the GitHub connector cannot create a repo, guide the user through https://github.com/new **before finishing the build** and then continue after they supply the URL. Never publish to the OpenBuilder toolkit repo itself or assume connector read permission implies write permission. Verify a real app PR/CI link; "remember to connect GitHub" in the final answer is not sufficient.
+
+## Required: design-first workflow
+
+Read docs/DESIGN.md and skills/openbuilder-design/SKILL.md. Create/update DESIGN.md in the actual app before complex visual changes. Use the **maintained** SuperDesign skill when installed and supported, not the unmaintained IDE extension. Use Canvas UI as an optional, user-approved effect library rather than automatically adding GPU-heavy components or copying Commons Clause source into MIT templates. Normal chat without a shell should still follow the design brief without claiming to run external CLIs.
+
 ## IMPORTANT: normal chat without a shell (the primary product)
 
 OpenBuilder is a **toolkit repository**, not the user's app repository. When a user pastes the URL in an ordinary ChatGPT/Claude/Grok chat:
 
-1. Check tools for repository READ and WRITE permissions; do not assume a browser/chat has any terminal, file execution, or local preview. A read-only connector cannot create a PR. Ask the user to connect a write-capable GitHub app, switch into an agent that can edit code, or provide copyable files.
+1. Start the GitHub handoff in docs/GITHUB.md: check tools for repository READ, WRITE and CREATE permissions; do not assume a browser/chat has any terminal, file execution, or local preview. A read-only connector cannot create a PR. Ask the user to connect a write-capable GitHub app, switch into an agent that can edit code, or provide copyable files.
 2. Use a **separate app repo**. FIRST verify whether standalone official OpenBuilder web/game template repositories are actually published and show GitHub's **Use this template** option. If they are, guide the user to click it or use a supported create-from-template connector action. This avoids copying a large lockfile through chat. **Do not invent links to unpublished repositories.** If unavailable, fall back to retrieving OpenBuilder's `templates/web/` or `templates/game/` and copying the **complete file tree** (including hidden `.github/workflows/ci.yml`, `.github/openbuilder/retries.json`, `scripts/audit.mjs`, `scripts/check.mjs`, and the exact `package-lock.json` for web) into a different repo. Use GitHub tree APIs when available. Never truncate the lockfile, copy local secrets, or edit the toolkit as if it were the app.
 3. Open one PR in the **app repository**; wait for **its** GitHub Actions checks. This generated CI runs independent security heuristics and tests; the web version also runs `npm ci` and a production build. The toolkit's green CI does not prove the app's code passes.
 4. No-shell preview: use the PR diff and CI evidence. Explain that an interactive preview in mobile chat is host-dependent; do not deploy a Vercel preview merely to compensate for unavailable local tools.
@@ -20,7 +28,7 @@ OpenBuilder is a **toolkit repository**, not the user's app repository. When a u
 2. Prefer minimal dependencies and no paid infrastructure until a feature demands it. Never silently purchase domains or paid plans.
 3. Confirm which provider tools are actually connected **by inspecting available tools**, not by assuming they are installed. In ChatGPT, guide the person to find available GitHub/Supabase/Vercel/Resend connections in the Apps/Plugins/Connections directory. Verify current labels, permissions and availability rather than assuming a fixed Settings path. In other AIs use their supported connector/MCP setup.
 4. Ask users to **authorize** connectors through the provider, not paste credentials into chat. Never request service-role keys, API secrets, or passwords in messages.
-5. Make a small implementation plan. When operating inside an OpenBuilder checkout, create user apps **as sibling folders outside the toolkit**, for example `node bin/openbuilder.mjs init <name> --template web|game --dir ..`. Initialize a separate Git repository for each app. Never edit the toolkit itself when the user asked to build an application. For code pushed to GitHub, work in a feature branch and PR. Never overwrite the default branch without explicit instruction.
+5. Make a small implementation plan and establish the user-owned GitHub destination before large code generation. When operating inside an OpenBuilder checkout, create user apps **as sibling folders outside the toolkit**, for example `node bin/openbuilder.mjs init <name> --template web|game --dir ..`. Initialize a separate Git repository for each app. Never edit the toolkit itself when the user asked to build an application. For code pushed to GitHub, work in a feature branch and PR. Never overwrite the default branch without explicit instruction.
 
 ## Safe implementation loop
 

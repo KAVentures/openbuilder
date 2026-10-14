@@ -6,6 +6,7 @@ import { audit } from '../lib/audit.mjs';
 import { preview } from '../lib/preview.mjs';
 import { retryCommand } from '../lib/retry.mjs';
 import { release } from '../lib/release.mjs';
+import { githubAction } from '../lib/github.mjs';
 
 const help = `OpenBuilder 0.1 — local-first app builder guardrails
 
@@ -16,6 +17,9 @@ Usage:
   node bin/openbuilder.mjs retry allow|record --kind preview|deploy --signature <error-summary> [--root-cause <label>] [--project <path>]
   node bin/openbuilder.mjs retry reset --reason <reason> --owner-approved [--project <path>]
   node bin/openbuilder.mjs release [project-path] [--json]
+  node bin/openbuilder.mjs github status [--project <path>]
+  node bin/openbuilder.mjs github create [--name <repo-name>] [--visibility private|public] --confirm [--project <path>]
+  node bin/openbuilder.mjs github connect --repo owner/name --confirm [--project <path>]
 
 Preview never triggers Vercel. Release never deploys automatically.
 All external provider operations require a connected agent or explicit manual action.`;
@@ -58,6 +62,18 @@ async function main() {
     const result=await retryCommand({operation:positionals[0],kind:values.kind,signature:values.signature,rootCause:values['root-cause'],project:path.resolve(values.project),reason:values.reason,ownerApproved:values['owner-approved']});
     console.log(JSON.stringify(result,null,2));
     if(!result.allowed) process.exitCode=2;
+    return;
+  }
+  if (cmd==='github') {
+    const {values,positionals}=argv(args,{
+      project:{type:'string',default:'.'},name:{type:'string'},visibility:{type:'string',default:'private'},
+      repo:{type:'string'},confirm:{type:'boolean',default:false},
+      'no-push':{type:'boolean',default:false}
+    });
+    const result=await githubAction({operation:positionals[0],project:path.resolve(values.project),
+      repoName:values.name,visibility:values.visibility,repo:values.repo,
+      confirm:values.confirm,push:!values['no-push']});
+    console.log(JSON.stringify(result,null,2));
     return;
   }
   if (cmd==='release') {
