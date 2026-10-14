@@ -7,6 +7,7 @@ import {scaffold} from '../lib/scaffold.mjs';
 import {audit} from '../lib/audit.mjs';
 import {decideRetry,retryCommand} from '../lib/retry.mjs';
 import {release} from '../lib/release.mjs';
+import {resolveAsset} from '../lib/preview.mjs';
 
 async function temp(){return fs.mkdtemp(path.join(os.tmpdir(),'openbuilder-'));}
 test('scaffolds working web and game manifests without overwriting',async t=>{
@@ -73,4 +74,20 @@ test('static game release requires attestation but no fictional build step',asyn
   assert.equal(report.ready,false);
   assert.equal(report.steps.find(s=>s.name==='Game source checks').status,'pass');
   assert.equal(report.steps.find(s=>s.name==='Game static build').status,'pass');
+});
+
+test('local preview refuses configuration files, traversal and escaped symlinks',async t=>{
+  const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+  const game=await scaffold({name:'safe-game',template:'game',parent:dir});
+  const root=await fs.realpath(game);
+  assert.equal(await resolveAsset(root,'/openbuilder.json'),null);
+  assert.equal(await resolveAsset(root,'/.openbuilder/launch-evidence.json'),null);
+  assert.equal(await resolveAsset(root,'/assets/%2E%2E/openbuilder.json'),null);
+  assert.equal(await resolveAsset(root,'/%2E%2E/package.json'),null);
+  assert.equal(await resolveAsset(root,'/%E0%A4%A'),null);
+  assert.ok((await resolveAsset(root,'/game.js')).endsWith('game.js'));
+  await fs.mkdir(path.join(game,'assets'));
+  const outside=path.join(dir,'outside.txt');await fs.writeFile(outside,'secret');
+  await fs.symlink(outside,path.join(game,'assets','secret.txt'));
+  assert.equal(await resolveAsset(root,'/assets/secret.txt'),null);
 });
