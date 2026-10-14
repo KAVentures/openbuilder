@@ -8,3 +8,7 @@ You do **not** need every service. Ask your connected AI to guide you through th
 - Resend delivers transactional emails *if needed*. Verify your sending domain in Resend, configure the DNS records shown there, then provide the sending identity through your hosting provider's **server-side** environment settings. Do not paste API keys into frontend code.
 
 See the repository docs for click-by-click guidance and restrictions.
+
+## GitHub connection is part of the build
+
+Don't finish the app with just a reminder to connect GitHub. Check the app's repository first; if none exists, ask the owner to approve private-repo creation. In a local coding agent use OpenBuilder's github status/create/connect commands; in a chat without repository-creation permission guide the user to https://github.com/new, then use the authorized GitHub connector to upload app source. The release gate requires an origin remote, but actual GitHub CI results still need verification. See https://github.com/KAVentures/openbuilder/blob/main/docs/GITHUB.md.

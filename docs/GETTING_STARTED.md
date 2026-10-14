@@ -193,3 +193,9 @@ git commit -m "Initial app"
 ~~~
 
 Git may ask you to configure a username/email first. The release gate now explains this directly. Evidence must be associated with the app's current Git commit and must be verified within seven days.
+
+## 7. Design and automatic GitHub connection
+
+OpenBuilder's [design workflow](DESIGN.md) includes the optional maintained SuperDesign skill and Canvas UI effects. No extra visual package is installed unless needed and authorized.
+
+**GitHub is part of building**, not a footer note. A chat agent should first inspect the current app repository and connector permissions. With write/create access, it can work in a new private repo after your approval. Without a create-repository tool, it should guide you to https://github.com/new, then commit the app into that repo. Local agents can use **node bin/openbuilder.mjs github status**, **github connect**, and **github create** with explicit approval. See [GitHub handoff instructions](GITHUB.md).

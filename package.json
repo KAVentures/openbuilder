@@ -12,6 +12,6 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check bin/openbuilder.mjs && node --check lib/audit.mjs && node --check lib/scaffold.mjs && node --check lib/retry.mjs && node --check lib/preview.mjs && node --check lib/release.mjs && node --check scripts/publish-template-repos.mjs"
+    "check": "node --check bin/openbuilder.mjs && node --check lib/audit.mjs && node --check lib/scaffold.mjs && node --check lib/retry.mjs && node --check lib/preview.mjs && node --check lib/release.mjs && node --check scripts/publish-template-repos.mjs && node --check lib/github.mjs"
   }
 }

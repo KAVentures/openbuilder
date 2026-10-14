@@ -53,3 +53,9 @@ The main audit is `lib/audit.mjs`, copied verbatim to each template at `template
 ## Template repositories
 
 A maintainer can publish the web and game starters as separate **GitHub template repositories** using `scripts/publish-template-repos.mjs` with explicit approval. See `docs/PUBLISH_TEMPLATES.md`. This cannot be completed through GitHub's file-editing connector alone. Once published, ordinary chat users can create a new app repo using **Use this template**, without a multi-file transfer. Future template updates still require synchronization PRs.
+
+## Design sources and GitHub publishing
+
+Read docs/DESIGN.md for the maintained SuperDesign skill (optional CLI) and Canvas UI (optional MIT + Commons Clause components). The default app templates are not tied to their CLI or GPU runtimes.
+
+OpenBuilder's local **github** command inspects the current app's Git state and GitHub CLI authentication, then can attach an existing authorized remote or create a private repo after explicit confirmation. Normal chats use the GitHub connector when it provides a relevant write/create operation; otherwise https://github.com/new is a one-time user action **during the build**. The release gate detects missing GitHub origin. A configured remote alone does not prove the remote is accessible or its CI passed.

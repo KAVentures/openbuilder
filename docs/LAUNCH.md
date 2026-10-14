@@ -80,3 +80,7 @@ On Windows, npm execution uses `cmd.exe`; on failure OpenBuilder surfaces redact
 ### New project not initialized as Git
 
 If the release gate says **Git repository** is missing, initialize the **generated app**, not the OpenBuilder toolkit, using `git init`, `git add .` and `git commit -m "Initial app"`. Then run the release checks again. A repository without an initial commit has no valid revision to bind attestations to.
+
+### GitHub source-control gate
+
+Before production launch, the application must be linked to its own GitHub repository. The CLI release gate blocks if no GitHub origin remote is configured. This only verifies the local configuration, not whether GitHub can be reached or its workflows passed. Confirm the app URL, pushed commit, PR and app-specific CI checks separately. See [GitHub handoff](GITHUB.md).
