@@ -16,7 +16,7 @@
 ### ChatGPT
 
 1. Open a new ChatGPT chat.
-2. If GitHub isn't connected and is offered for your account, go to **Settings → Plugins** (or the Plugins sidebar), select **GitHub**, and authorize the repositories you intend to use. Exact labels may vary.
+2. If GitHub isn't connected and is offered for your account, open your ChatGPT **Apps/Plugins/Connections** directory where available, search for a GitHub connection, and authorize the repositories you intend to use. Names and available permissions vary by product and plan.
 3. Paste this:
 
 ~~~text
@@ -118,7 +118,7 @@ Visit **http://127.0.0.1:4173** on the same computer. The game starter is HTML, 
 ~~~bash
 node bin/openbuilder.mjs init my-first-web --template web
 cd my-first-web
-npm install
+npm ci
 npm test
 npm run build
 npm run dev

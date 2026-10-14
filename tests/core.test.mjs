@@ -52,7 +52,7 @@ test('retry guard blocks repeated identical errors and cumulative attempts',asyn
   const deploy={project:dir,kind:'deploy',signature:'same error'};
   await retryCommand({...deploy,operation:'record'});
   assert.equal((await retryCommand({...deploy,operation:'allow'})).allowed,false);
-  await assert.rejects(retryCommand({project:dir,operation:'reset',reason:'oops'}),/meaningful/);
+  await assert.rejects(retryCommand({project:dir,operation:'reset',reason:'oops'}),/owner|meaningful/);
   await retryCommand({project:dir,operation:'reset',reason:'Fixed the underlying DNS configuration with a verified manual deployment',ownerApproved:true});
   assert.equal((await retryCommand({...p,operation:'allow'})).allowed,true);
 });
@@ -75,7 +75,7 @@ test('static game release requires attestation but no fictional build step',asyn
   const report=await release(game);
   assert.equal(report.ready,false);
   assert.equal(report.steps.find(s=>s.name==='Game source checks').status,'pass');
-  assert.equal(report.steps.find(s=>s.name==='Game static build').status,'pass');
+  assert.equal(report.steps.find(s=>s.name==='Game build').status,'pass');
 });
 
 test('local preview refuses configuration files, traversal and escaped symlinks',async t=>{

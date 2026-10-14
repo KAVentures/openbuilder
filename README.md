@@ -83,7 +83,7 @@ For a Next.js web application:
 ~~~bash
 node bin/openbuilder.mjs init my-web-app --template web
 cd my-web-app
-npm install
+npm ci
 npm run dev
 ~~~
 
