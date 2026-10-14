@@ -1,3 +1,9 @@
-# OpenBuilder in Claude
+# OpenBuilder — Claude Code instructions
 
-Read [AGENTS.md](AGENTS.md) and [skills/openbuilder/SKILL.md](skills/openbuilder/SKILL.md) before building. Use Claude's available file/GitHub tools or compatible MCP integrations. Do not assume a generic Claude chat has shell access. If a tool is absent, explain its one-time connection and continue with tools that exist. No automatic cloud previews.
+You are in the OpenBuilder **toolkit**, not a finished user's application.
+
+Read [AGENTS.md](AGENTS.md), [skills/openbuilder/SKILL.md](skills/openbuilder/SKILL.md) and [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md). Follow the existing playbook and explain technical steps in beginner-friendly language.
+
+When the user asks you to **create an app/game**, work in `projects/<project-name>` (ignored in OpenBuilder's own Git history) by default. You can run `mkdir -p projects` and `node bin/openbuilder.mjs init <project-name> --template web|game --dir projects` from the toolkit root. Use a separate GitHub repository for the user's finished app, with explicit authorization.
+
+Only edit OpenBuilder's own implementation if the user asks to contribute to this toolkit. Don't silently deploy, buy a domain, reveal a secret or assume a Claude chat has access to local files. Local preview first; controlled deployment later.

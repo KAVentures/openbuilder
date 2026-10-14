@@ -11,35 +11,80 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
       - run: npm run check
       - run: npm test
-      - name: Ensure templates prohibit Git-triggered Vercel deployments
-        run: |
-          node -e "for(const t of ['web','game']){let c=require('./templates/'+t+'/vercel.json');if(c.git?.deploymentEnabled!==false)process.exit(1)}"
-  web-template-build:
+      - name: Check Vercel auto-deploy guard
+        run: node -e "for(const t of ['web','game']){let c=require('./templates/'+t+'/vercel.json');if(c.git?.deploymentEnabled!==false)process.exit(1)}"
+  web-template:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
       run:
         working-directory: templates/web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
+      - run: npm run check
       - run: npm test
       - run: npm run build
   game-template:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: templates/game
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
-      - run: node --check templates/game/game.js
+      - run: npm run check
+      - run: npm test
+      - run: node --check game.js
+  windows-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - run: node bin/openbuilder.mjs init windows-web --template web
+      - run: npm ci --no-audit --no-fund
+        working-directory: windows-web
+      - run: npm test
+        working-directory: windows-web
+      - run: npm run build
+        working-directory: windows-web
+      - name: Ensure release runs and reports unverified checks (expected block)
+        shell: pwsh
+        run: |
+          $PSNativeCommandUseErrorActionPreference = $false
+          node bin/openbuilder.mjs release windows-web --json > windows-release.json
+          if ($LASTEXITCODE -ne 1) { throw "Release should block when evidence is missing" }
+          if (-not (Select-String -Path windows-release.json -Pattern '"ready": false')) { throw "Missing blocked report" }
+          exit 0
+      - name: Local Next.js preview works on Windows without Vercel
+        shell: pwsh
+        run: |
+          $server = Start-Process -FilePath node -ArgumentList @("bin/openbuilder.mjs","preview","windows-web","--port","4173") -PassThru -RedirectStandardOutput "preview.out" -RedirectStandardError "preview.err"
+          try {
+            $ok = $false
+            for ($i=0; $i -lt 20; $i++) {
+              Start-Sleep -Seconds 1
+              try {
+                $response = Invoke-WebRequest -Uri "http://127.0.0.1:4173" -UseBasicParsing -TimeoutSec 2
+                if ($response.StatusCode -eq 200) { $ok = $true; break }
+              } catch {}
+            }
+            if (-not $ok) { throw "Local preview did not return HTTP 200" }
+          } finally {
+            Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue
+          }

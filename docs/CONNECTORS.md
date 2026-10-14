@@ -5,7 +5,7 @@ OpenBuilder works with your existing AI interface. A connector is a secure way t
 ## Start: GitHub (needed for cloud source editing)
 
 1. Create a free account at https://github.com if you don't have one.
-2. In your AI app, open its connectors/plugins/apps settings. In ChatGPT look in **Settings → Plugins** or the chat sidebar; search for **GitHub** and choose **Connect**.
+2. In your AI app, open its connectors/plugins/apps settings. In ChatGPT, open the current **Apps/Plugins/Connections** directory if available, search for a **GitHub** connection, and authorize it; confirm that write operations are supported when creating apps.
 3. Sign in through GitHub's own authorization page and select only the relevant repositories. Do not share a personal access token in chat.
 4. Tell your AI the new repository's URL; ask it to create a feature branch and PR. Confirm you can see the branch.
 5. If a GitHub connector is not offered in your AI, download this toolkit and use a local coding-capable agent or GitHub website to add files.

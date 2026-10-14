@@ -55,6 +55,7 @@ The static audit can only flag a subset of the above. Manual evidence goes to `.
     "rollback": {
       "verified": true,
       "at": "2026-10-14T12:00:00Z",
+      "commitSha": "REPLACE_WITH_CURRENT_GIT_COMMIT_SHA",
       "notes": "Rehearsed rollback to previous staging deployment."
     },
     "backup_restore": {
@@ -69,3 +70,9 @@ The static audit can only flag a subset of the above. Manual evidence goes to `.
 Pre-deployment required keys: `rollback`, `error_tracking`, `mobile`, `performance`, `contact`, `legal_review`, `backup_restore`. A **production smoke test is required after actual deployment** and cannot honestly be attested before the first production release. Conditional keys: `auth_routes`, `password_reset`, `rls_isolation`, `email_deliverability`, `payment_e2e`, `spending_limits`, `rate_limits`, `privacy_review`, `search_console`, `public_seo_review`.
 
 `release` checks structure and runs configured tests/builds locally; it cannot prove claims were true or perform a real production smoke test before deployment. Treat post-deploy verification as a **separate mandatory step**. Never mark a staging test as verified production.
+
+### Evidence freshness
+
+The local `release` gate now requires every attestation to include the **current Git HEAD SHA** as `commitSha` and a timestamp `at` from within the past **seven days** (up to five minutes clock skew). Old evidence and evidence for another commit cannot pass. A new commit after attestation means relevant checks must be repeated. The checks remain **self-attestations** and are not independent proof.
+
+On Windows, npm execution uses `cmd.exe`; on failure OpenBuilder surfaces redacted diagnostic output rather than a silent 'blocked' result.

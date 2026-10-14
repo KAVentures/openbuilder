@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import {execFileSync} from 'node:child_process';
 import {scaffold,shouldCopyTemplateFile} from '../lib/scaffold.mjs';
 import {audit} from '../lib/audit.mjs';
 import {decideRetry,retryCommand} from '../lib/retry.mjs';
@@ -51,8 +52,8 @@ test('retry guard blocks repeated identical errors and cumulative attempts',asyn
   const deploy={project:dir,kind:'deploy',signature:'same error'};
   await retryCommand({...deploy,operation:'record'});
   assert.equal((await retryCommand({...deploy,operation:'allow'})).allowed,false);
-  await assert.rejects(retryCommand({project:dir,operation:'reset',reason:'oops'}),/meaningful/);
-  await retryCommand({project:dir,operation:'reset',reason:'Fixed the underlying DNS configuration'});
+  await assert.rejects(retryCommand({project:dir,operation:'reset',reason:'oops'}),/owner|meaningful/);
+  await retryCommand({project:dir,operation:'reset',reason:'Fixed the underlying DNS configuration with a verified manual deployment',ownerApproved:true});
   assert.equal((await retryCommand({...p,operation:'allow'})).allowed,true);
 });
 test('release gate requires tests, build, and external attestations',async t=>{
@@ -61,7 +62,8 @@ test('release gate requires tests, build, and external attestations',async t=>{
   await fs.writeFile(path.join(dir,'package.json'),JSON.stringify({scripts:{test:'node --eval "process.exit(0)"',build:'node --eval "process.exit(0)"'}}));
   const before=await release(dir);
   assert.equal(before.ready,false);
-  const attest={};for(const step of before.steps.filter(x=>x.name.startsWith('Manual: '))){attest[step.name.slice(8)]={verified:true,notes:'Confirmed by an actual external test',at:'2026-10-14T10:00:00Z'};}
+  const git=(args)=>execFileSync('git',args,{cwd:dir,stdio:'ignore'});git(['init']);git(['config','user.name','OpenBuilder Tests']);git(['config','user.email','tests@example.invalid']);git(['add','.']);git(['commit','-m','fixture']);const revision=execFileSync('git',['rev-parse','HEAD'],{cwd:dir,encoding:'utf8'}).trim();
+  const attest={};for(const step of before.steps.filter(x=>x.name.startsWith('Manual: '))){attest[step.name.slice(8)]={verified:true,notes:'Confirmed by an actual external test',at:new Date().toISOString(),commitSha:revision};}
   await fs.mkdir(path.join(dir,'.openbuilder'));
   await fs.writeFile(path.join(dir,'.openbuilder','launch-evidence.json'),JSON.stringify({checks:attest}));
   const after=await release(dir);
@@ -73,7 +75,7 @@ test('static game release requires attestation but no fictional build step',asyn
   const report=await release(game);
   assert.equal(report.ready,false);
   assert.equal(report.steps.find(s=>s.name==='Game source checks').status,'pass');
-  assert.equal(report.steps.find(s=>s.name==='Game static build').status,'pass');
+  assert.equal(report.steps.find(s=>s.name==='Game build').status,'pass');
 });
 
 test('local preview refuses configuration files, traversal and escaped symlinks',async t=>{
@@ -108,4 +110,31 @@ test('untracked local env values are not treated as committed credentials',async
   await fs.writeFile(path.join(dir,'.env.local'),'TOKEN='+'sk-proj-'+'A'.repeat(40));
   const report=await audit(dir);
   assert.equal(report.summary.blockers,0);
+});
+
+test('retry signatures normalize line numbers; resets require explicit owner approval',async t=>{
+ const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ const x={project:dir,kind:'preview',signature:'Build failed at page.tsx:41 at 2026-10-14T12:00:00Z'};
+ await retryCommand({...x,operation:'record'});
+ const same={...x,signature:'Build failed at page.tsx:53 at 2026-10-15T18:00:00Z'};
+ assert.equal((await retryCommand({...same,operation:'allow'})).identicalFailures,1);
+ await assert.rejects(retryCommand({project:dir,operation:'reset',reason:'I have reviewed and fixed the error'}),/owner/);
+ assert.equal((await retryCommand({project:dir,operation:'reset',reason:'Fixed error, confirmed manual recovery with user',ownerApproved:true})).reset,true);
+});
+test('old evidence cannot qualify as verified launch evidence',async t=>{
+ const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ await fs.writeFile(path.join(dir,'openbuilder.json'),JSON.stringify({template:'game',features:{}}));
+ await fs.writeFile(path.join(dir,'index.html'),'<h1>Example</h1>');
+ await fs.writeFile(path.join(dir,'style.css'),'html{}');
+ await fs.writeFile(path.join(dir,'game.js'),'console.log("ok")');
+ const git=(args)=>execFileSync('git',args,{cwd:dir,stdio:'ignore'});
+ git(['init']);git(['config','user.name','OpenBuilder Tests']);git(['config','user.email','tests@example.invalid']);git(['add','.']);git(['commit','-m','fixture']);
+ const revision=execFileSync('git',['rev-parse','HEAD'],{cwd:dir,encoding:'utf8'}).trim();
+ const before=await release(dir);
+ const checks={};for(const step of before.steps.filter(s=>s.name.startsWith('Manual: ')))checks[step.name.slice(8)]={verified:true,at:'2026-01-01T00:00:00Z',notes:'Ancient check without current confirmation',commitSha:revision};
+ await fs.mkdir(path.join(dir,'.openbuilder'));
+ await fs.writeFile(path.join(dir,'.openbuilder','launch-evidence.json'),JSON.stringify({checks}));
+ const after=await release(dir);
+ assert.equal(after.ready,false);
+ assert.ok(after.steps.some(x=>x.name.startsWith('Manual:')&&x.status==='blocked'));
 });

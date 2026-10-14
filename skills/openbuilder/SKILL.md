@@ -18,3 +18,7 @@ When a user asks to build:
 8. Provide clear links to the branch/PR or actual preview and a concise list of missing manual steps.
 
 This skill is instructions, not an autonomous service. It cannot create a preview or deploy without a capable AI agent and available tools.
+
+## No-shell / regular chat use
+
+If local execution is unavailable, do not emit CLI commands as if they ran. Copy the selected template file tree via GitHub **write** tools into a **different** app repository, including hidden `.github` files and the independent audit/check scripts. Open the app PR and read that app's CI checks. If GitHub is read-only, explain the exact missing permission and supply the files or guide the user to a capable coding agent. Keep retry failures in `.github/openbuilder/retries.json` on the app PR (not merely the chat). See `AGENTS.md` and `docs/GETTING_STARTED.md`.
