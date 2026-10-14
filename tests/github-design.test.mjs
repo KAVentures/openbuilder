@@ -46,6 +46,10 @@ test('authorized GitHub creation defaults to private and commits a new game loca
  if(process.platform==='win32')return t.skip('Unix fake gh executable fixture');
  const dir=await temp(t);
  const app=await scaffold({name:'demo-game',template:'game',parent:dir});
+ const setupGit=args=>execFileSync('git',args,{cwd:app,stdio:'ignore'});
+ setupGit(['init']);
+ setupGit(['config','user.name','OpenBuilder Test Agent']);
+ setupGit(['config','user.email','openbuilder-tests@example.invalid']);
  const fakeBin=path.join(dir,'bin');
  await fs.mkdir(fakeBin);
  const fakeGh=path.join(fakeBin,'gh');
