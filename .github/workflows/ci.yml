@@ -1,0 +1,22 @@
+name: OpenBuilder CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run check
+      - run: npm test
+      - name: No automatic deployments
+        run: |
+          node -e "for(const t of ['web','game']){let c=require('./templates/'+t+'/vercel.json');if(c.git?.deploymentEnabled!==false)process.exit(1)}"

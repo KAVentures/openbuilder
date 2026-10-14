@@ -1,0 +1,5 @@
+.openbuilder/
+.vercel/
+.env
+.env.*
+!.env.example
