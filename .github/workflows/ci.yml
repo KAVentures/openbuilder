@@ -48,3 +48,24 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: node --check game.js
+  windows-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - run: node bin/openbuilder.mjs init windows-web --template web
+      - run: npm ci --no-audit --no-fund
+        working-directory: windows-web
+      - run: npm test
+        working-directory: windows-web
+      - run: npm run build
+        working-directory: windows-web
+      - name: Ensure release runs and reports unverified checks (expected block)
+        shell: pwsh
+        run: |
+          node bin/openbuilder.mjs release windows-web --json > windows-release.json
+          if ($LASTEXITCODE -ne 1) { throw "Release should block when evidence is missing" }
+          if (-not (Select-String -Path windows-release.json -Pattern '"ready": false')) { throw "Missing blocked report" }
