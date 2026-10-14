@@ -66,6 +66,6 @@ The static audit can only flag a subset of the above. Manual evidence goes to `.
 }
 ```
 
-Always required keys: `rollback`, `error_tracking`, `mobile`, `performance`, `contact`, `legal_review`, `backup_restore`, `production_smoke_test`. Conditional keys: `auth_routes`, `password_reset`, `rls_isolation`, `email_deliverability`, `payment_e2e`, `spending_limits`, `rate_limits`, `privacy_review`, `search_console`, `public_seo_review`.
+Pre-deployment required keys: `rollback`, `error_tracking`, `mobile`, `performance`, `contact`, `legal_review`, `backup_restore`. A **production smoke test is required after actual deployment** and cannot honestly be attested before the first production release. Conditional keys: `auth_routes`, `password_reset`, `rls_isolation`, `email_deliverability`, `payment_e2e`, `spending_limits`, `rate_limits`, `privacy_review`, `search_console`, `public_seo_review`.
 
-`release` checks structure and runs configured tests/builds locally; it cannot prove claims were true or perform a real production smoke test before deployment. Treat post-deploy verification as a *separate mandatory step*. The production smoke-test attestation may refer to a previous production candidate or staging environment but **must not** be falsely presented as verification of a deployment that hasn't occurred.
+`release` checks structure and runs configured tests/builds locally; it cannot prove claims were true or perform a real production smoke test before deployment. Treat post-deploy verification as a **separate mandatory step**. Never mark a staging test as verified production.

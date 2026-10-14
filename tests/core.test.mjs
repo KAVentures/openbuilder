@@ -21,7 +21,7 @@ test('scaffolds working web and game manifests without overwriting',async t=>{
 });
 test('rejects path injection and bad templates',async()=>{
   for(const name of ['../x','Bad','-bad','a--b','x/evil','a']) await assert.rejects(scaffold({name}),/name/);
-  await assert.rejects(scaffold({name:'valid-name',template:'php'}),/template/);
+  await assert.rejects(scaffold({name:'valid-name',template:'php'}),/[Tt]emplate/);
 });
 test('auditor reports exposed high-risk keys without printing values',async t=>{
   const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
@@ -54,7 +54,7 @@ test('retry guard blocks repeated identical errors and cumulative attempts',asyn
   await retryCommand({project:dir,operation:'reset',reason:'Fixed the underlying DNS configuration'});
   assert.equal((await retryCommand({...p,operation:'allow'})).allowed,true);
 });
-test('release gate requires tests, build, and truthful external attestations',async t=>{
+test('release gate requires tests, build, and external attestations',async t=>{
   const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
   await fs.writeFile(path.join(dir,'openbuilder.json'),JSON.stringify({template:'web',features:{}}));
   await fs.writeFile(path.join(dir,'package.json'),JSON.stringify({scripts:{test:'node --eval "process.exit(0)"',build:'node --eval "process.exit(0)"'}}));
@@ -65,4 +65,12 @@ test('release gate requires tests, build, and truthful external attestations',as
   await fs.writeFile(path.join(dir,'.openbuilder','launch-evidence.json'),JSON.stringify({checks:attest}));
   const after=await release(dir);
   assert.equal(after.ready,true,JSON.stringify(after.steps));
+});
+test('static game release requires attestation but no fictional build step',async t=>{
+  const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+  const game=await scaffold({name:'simple-game',template:'game',parent:dir});
+  const report=await release(game);
+  assert.equal(report.ready,false);
+  assert.equal(report.steps.find(s=>s.name==='Game source checks').status,'pass');
+  assert.equal(report.steps.find(s=>s.name==='Game static build').status,'pass');
 });
