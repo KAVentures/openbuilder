@@ -70,6 +70,7 @@ jobs:
           node bin/openbuilder.mjs release windows-web --json > windows-release.json
           if ($LASTEXITCODE -ne 1) { throw "Release should block when evidence is missing" }
           if (-not (Select-String -Path windows-release.json -Pattern '"ready": false')) { throw "Missing blocked report" }
+          exit 0
       - name: Local Next.js preview works on Windows without Vercel
         shell: pwsh
         run: |
