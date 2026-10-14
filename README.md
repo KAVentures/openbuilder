@@ -58,9 +58,9 @@ cd openbuilder
 codex
 ~~~
 
-Then ask: **"Use OpenBuilder to make me a mobile-friendly habit tracker. Put the app in projects/habit-tracker, not in the toolkit itself. Test locally and only deploy after the release checks."**
+Then ask: **"Use OpenBuilder to make me a mobile-friendly habit tracker. Put the app in ../habit-tracker, as a separate sibling repository, not inside OpenBuilder. Test locally and only deploy after the release checks."**
 
-Need to install Claude Code or Codex first? See [the complete beginner guide](docs/GETTING_STARTED.md#2-use-claude-code-or-codex-on-your-computer). New projects under `projects/` are ignored by this toolkit's Git history; create a **separate GitHub repo for your app** before sharing it.
+Need to install Claude Code or Codex first? See [the complete beginner guide](docs/GETTING_STARTED.md#2-use-claude-code-or-codex-on-your-computer). Create a **separate GitHub repository for your app**. Keeping generated apps alongside the toolkit avoids accidentally committing them into the builder itself.
 
 ## Or run the local CLI yourself
 
@@ -72,8 +72,8 @@ cd openbuilder
 npm test
 
 # Make a playable browser game
-node bin/openbuilder.mjs init my-game --template game
-node bin/openbuilder.mjs preview my-game
+node bin/openbuilder.mjs init my-game --template game --dir ..
+node bin/openbuilder.mjs preview ../my-game
 ~~~
 
 Open **http://127.0.0.1:4173** in the browser on the same computer. No Vercel preview is created.
@@ -81,8 +81,8 @@ Open **http://127.0.0.1:4173** in the browser on the same computer. No Vercel pr
 For a Next.js web application:
 
 ~~~bash
-node bin/openbuilder.mjs init my-web-app --template web
-cd my-web-app
+node bin/openbuilder.mjs init my-web-app --template web --dir ..
+cd ../my-web-app
 npm ci
 npm run dev
 ~~~

@@ -84,7 +84,7 @@ Claude Code can follow the repository's `CLAUDE.md` and Codex uses `AGENTS.md`. 
 ~~~text
 Read AGENTS.md, CLAUDE.md (if relevant), and
 skills/openbuilder/SKILL.md. Use OpenBuilder to create
-a simple appointment booking website in projects/booking-app.
+a simple appointment booking website in ../booking-app (a sibling directory).
 
 Explain the design in beginner-friendly language, create the app
 using the web template, and test it locally. Work on the new app,
@@ -92,7 +92,7 @@ NOT on OpenBuilder itself. Avoid Vercel preview builds.
 Ask me before using paid services or deploying to production.
 ~~~
 
-The `projects/` directory is ignored by the OpenBuilder repository to prevent accidentally committing your own app into the toolkit. Your app still needs its **own Git repository** for source control and deployment. Ask your coding agent to help initialize and push it after you authorize GitHub.
+Keep generated projects in a **sibling directory** to the OpenBuilder checkout, and initialize their own separate Git repository for source control and deployment. Ask your coding agent to help initialize and push it after you authorize GitHub.
 
 The preview appears at a **local address on your computer**, not automatically inside the ChatGPT or Claude mobile chat window. Access from a phone needs a correctly secured shared preview environment, which the MVP does not supply.
 
@@ -107,8 +107,8 @@ From your cloned OpenBuilder directory:
 ### Browser game (no cloud services needed)
 
 ~~~bash
-node bin/openbuilder.mjs init my-first-game --template game
-node bin/openbuilder.mjs preview my-first-game
+node bin/openbuilder.mjs init my-first-game --template game --dir ..
+node bin/openbuilder.mjs preview ../my-first-game
 ~~~
 
 Visit **http://127.0.0.1:4173** on the same computer. The game starter is HTML, CSS and JavaScript with touch and keyboard controls.
@@ -116,8 +116,8 @@ Visit **http://127.0.0.1:4173** on the same computer. The game starter is HTML, 
 ### Web app (Next.js)
 
 ~~~bash
-node bin/openbuilder.mjs init my-first-web --template web
-cd my-first-web
+node bin/openbuilder.mjs init my-first-web --template web --dir ..
+cd ../my-first-web
 npm ci
 npm test
 npm run build
@@ -131,8 +131,8 @@ Visit **http://localhost:3000**. This is a scaffold for customization, not a fin
 From the original OpenBuilder checkout:
 
 ~~~bash
-node bin/openbuilder.mjs check my-first-game --strict
-node bin/openbuilder.mjs release my-first-game
+node bin/openbuilder.mjs check ../my-first-game --strict
+node bin/openbuilder.mjs release ../my-first-game
 ~~~
 
 Release is **blocked by default** until the required external checks are honestly attested. It never deploys automatically.
@@ -140,7 +140,7 @@ Release is **blocked by default** until the required external checks are honestl
 Retry tracking is voluntary for an AI/agent using the CLI:
 
 ~~~bash
-node bin/openbuilder.mjs retry allow --kind preview --signature "build error" --project my-first-game
+node bin/openbuilder.mjs retry allow --kind preview --signature "build error" --project ../my-first-game
 node bin/openbuilder.mjs retry record --kind preview --signature "build error" --project my-first-game
 ~~~
 
