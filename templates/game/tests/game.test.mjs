@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-test('static game and styles exist',()=>{assert.ok(fs.existsSync('index.html'));assert.ok(fs.existsSync('game.js'));assert.ok(fs.existsSync('style.css'));});
-test('Git pushes do not automatically deploy on Vercel',()=>{assert.equal(JSON.parse(fs.readFileSync('vercel.json','utf8')).git.deploymentEnabled,false);});
-test('public sitemap requires explicit owner setup',()=>{assert.equal(JSON.parse(fs.readFileSync('openbuilder.json','utf8')).features.indexed,false);});
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const read=file=>fs.readFileSync(path.join(root,file),'utf8');
+test('static game and styles exist',()=>{for(const f of ['index.html','game.js','style.css'])assert.ok(fs.existsSync(path.join(root,f)));});
+test('Git pushes do not automatically deploy on Vercel',()=>{assert.equal(JSON.parse(read('vercel.json')).git.deploymentEnabled,false);});
+test('public sitemap requires explicit owner setup',()=>{assert.equal(JSON.parse(read('openbuilder.json')).features.indexed,false);});
