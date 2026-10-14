@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import {scaffold} from '../lib/scaffold.mjs';
+import {scaffold,shouldCopyTemplateFile} from '../lib/scaffold.mjs';
 import {audit} from '../lib/audit.mjs';
 import {decideRetry,retryCommand} from '../lib/retry.mjs';
 import {release} from '../lib/release.mjs';
@@ -90,4 +90,22 @@ test('local preview refuses configuration files, traversal and escaped symlinks'
   const outside=path.join(dir,'outside.txt');await fs.writeFile(outside,'secret');
   await fs.symlink(outside,path.join(game,'assets','secret.txt'));
   assert.equal(await resolveAsset(root,'/assets/secret.txt'),null);
+});
+
+test('scaffold never copies secrets, dependency folders or local build caches',()=>{
+  const root=path.resolve('/project/templates/web');
+  assert.equal(shouldCopyTemplateFile(root,path.join(root,'node_modules','some-package','index.js')),false);
+  assert.equal(shouldCopyTemplateFile(root,path.join(root,'.next','server.js')),false);
+  assert.equal(shouldCopyTemplateFile(root,path.join(root,'.env.local')),false);
+  assert.equal(shouldCopyTemplateFile(root,path.join(root,'.env')),false);
+  assert.equal(shouldCopyTemplateFile(root,path.join(root,'.env.example')),true);
+  assert.equal(shouldCopyTemplateFile(root,path.join(root,'app','page.tsx')),true);
+});
+test('untracked local env values are not treated as committed credentials',async t=>{
+  const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+  await fs.writeFile(path.join(dir,'openbuilder.json'),JSON.stringify({template:'game',features:{}}));
+  await fs.writeFile(path.join(dir,'index.html'),'<h1>Hello</h1>');
+  await fs.writeFile(path.join(dir,'.env.local'),'TOKEN='+'sk-proj-'+'A'.repeat(40));
+  const report=await audit(dir);
+  assert.equal(report.summary.blockers,0);
 });
