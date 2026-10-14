@@ -1,0 +1,17 @@
+{
+  "name": "openbuilder",
+  "version": "0.1.0",
+  "description": "Chat-native, open-source builder toolkit with guarded previews and release checks",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "openbuilder": "./bin/openbuilder.mjs"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check bin/openbuilder.mjs && node --check lib/audit.mjs && node --check lib/scaffold.mjs && node --check lib/retry.mjs && node --check lib/preview.mjs && node --check lib/release.mjs"
+  }
+}

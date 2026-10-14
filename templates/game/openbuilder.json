@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "name": "starter-game",
+  "template": "game",
+  "features": {
+    "auth": false,
+    "database": false,
+    "email": false,
+    "payments": false,
+    "ai": false,
+    "personalData": false,
+    "indexed": true
+  },
+  "deployment": {
+    "provider": "vercel",
+    "automatic": false
+  }
+}
