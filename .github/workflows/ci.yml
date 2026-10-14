@@ -11,35 +11,46 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
       - run: npm run check
       - run: npm test
-      - name: Ensure templates prohibit Git-triggered Vercel deployments
-        run: |
-          node -e "for(const t of ['web','game']){let c=require('./templates/'+t+'/vercel.json');if(c.git?.deploymentEnabled!==false)process.exit(1)}"
-  web-template-build:
+      - name: Verify deployment protection in templates
+        run: node -e "for(const t of ['web','game']){let c=require('./templates/'+t+'/vercel.json');if(c.git?.deploymentEnabled!==false)process.exit(1)}"
+  web-template:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
       run:
         working-directory: templates/web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
       - run: npm install --no-audit --no-fund
+      - run: npm run check
       - run: npm test
       - run: npm run build
+      - name: Temporary lockfile extraction for deterministic dependencies
+        run: |
+          echo OPENBUILDER_LOCK_B64_START
+          base64 -w0 package-lock.json
+          echo ""
+          echo OPENBUILDER_LOCK_B64_END
   game-template:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: templates/game
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
-      - run: node --check templates/game/game.js
+      - run: npm run check
+      - run: npm test
+      - run: node --check game.js
