@@ -37,3 +37,11 @@ A universal remote MCP server must be deployed, authenticate individual users to
 ## Threats to consider
 
 Prompt injection from repositories, dependency scripts, supply-chain packages, untrusted web content, preview code exfiltration, incorrect auth policies, silent provider billing, token scope escalation, secrets in CI logs, concurrency bypasses for retry budgets, and fabricated test outcomes. Use separate sandbox accounts and human authorization for irreversible operations. Keep untrusted generated app code away from the builder's cloud credentials.
+
+## Cross-session retry tracking
+
+Generated apps include a **tracked** `.github/openbuilder/retries.json` file; CLI retries write to it. GitHub-connected chat agents should update it in the app PR whenever they attempt a preview or deployment, and re-read it in later sessions. A dishonest agent can ignore or reset it, and concurrent writes are not transactional: it is a shared audit trail, **not a universal enforcement hook**. Vercel automatic Git deployments are separately disabled by template configuration.
+
+## No-shell app CI
+
+Each template has its own `.github/workflows/ci.yml`, `scripts/audit.mjs` and `scripts/check.mjs`. The web project has a committed npm lockfile and runs `npm ci`; the game is dependency-free. When copying a template through GitHub's connector, include dotfiles and hidden workflows. Toolkit CI and generated app CI are separate.

@@ -17,7 +17,7 @@ jobs:
           node-version: '22'
       - run: npm run check
       - run: npm test
-      - name: Verify deployment protection in templates
+      - name: Check Vercel auto-deploy guard
         run: node -e "for(const t of ['web','game']){let c=require('./templates/'+t+'/vercel.json');if(c.git?.deploymentEnabled!==false)process.exit(1)}"
   web-template:
     runs-on: ubuntu-latest
@@ -30,16 +30,10 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - run: npm run check
       - run: npm test
       - run: npm run build
-      - name: Temporary lockfile extraction for deterministic dependencies
-        run: |
-          echo OPENBUILDER_LOCK_B64_START
-          base64 -w0 package-lock.json
-          echo ""
-          echo OPENBUILDER_LOCK_B64_END
   game-template:
     runs-on: ubuntu-latest
     timeout-minutes: 5

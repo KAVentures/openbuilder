@@ -14,7 +14,7 @@ Usage:
   node bin/openbuilder.mjs check [project-path] [--json] [--strict]
   node bin/openbuilder.mjs preview [project-path] [--port 4173]
   node bin/openbuilder.mjs retry allow|record --kind preview|deploy --signature <error-id> [--project <path>]
-  node bin/openbuilder.mjs retry reset --reason <reason> [--project <path>]
+  node bin/openbuilder.mjs retry reset --reason <reason> --owner-approved [--project <path>]
   node bin/openbuilder.mjs release [project-path] [--json]
 
 Preview never triggers Vercel. Release never deploys automatically.
@@ -54,8 +54,8 @@ async function main() {
     return;
   }
   if (cmd==='retry') {
-    const {values,positionals}=argv(args,{kind:{type:'string'},signature:{type:'string'},project:{type:'string',default:'.'},reason:{type:'string'}});
-    const result=await retryCommand({operation:positionals[0],kind:values.kind,signature:values.signature,project:path.resolve(values.project),reason:values.reason});
+    const {values,positionals}=argv(args,{kind:{type:'string'},signature:{type:'string'},project:{type:'string',default:'.'},reason:{type:'string'},'owner-approved':{type:'boolean',default:false}});
+    const result=await retryCommand({operation:positionals[0],kind:values.kind,signature:values.signature,project:path.resolve(values.project),reason:values.reason,ownerApproved:values['owner-approved']});
     console.log(JSON.stringify(result,null,2));
     if(!result.allowed) process.exitCode=2;
     return;

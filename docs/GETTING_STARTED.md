@@ -166,3 +166,18 @@ OpenBuilder does not demand that you connect all four. See the [click-by-click c
 **"Will this consume my ChatGPT/Claude API credits?"** The toolkit itself makes no AI inference calls. Your chosen AI surface determines subscription or usage allowances; deployed AI features may incur separate API charges.
 
 More: [README](../README.md) · [FAQ](FAQ.md) · [Production checklist](LAUNCH.md).
+
+## 5. No-shell GitHub-only build (recommended for ordinary chat)
+
+Use this when your AI can **read and write GitHub** but cannot run commands. A user should only need to paste the OpenBuilder URL and describe the app.
+
+1. Give the AI the `KAVentures/openbuilder` URL and ask it to read `AGENTS.md`.
+2. Create **another empty GitHub repository for the app**, or ask the AI to create one if its GitHub integration permits it. Tell it that the OpenBuilder source repository is just the **toolkit**.
+3. Tell the AI to retrieve the *entire file tree* from `templates/web/` or `templates/game/` and copy those files into your app repo's **root**. Do not forget hidden `.github/workflows/ci.yml` and `.github/openbuilder/retries.json`; those files carry the independently running checks and retry history. Preserve `scripts/check.mjs` and `scripts/audit.mjs`. For a web app personalize `package.json` and the root and `packages[""]` names in `package-lock.json`.
+4. Ask it to implement the requested feature in a **pull request**. The new app repository's GitHub Actions run the tests and security heuristics automatically, without a shell in the AI conversation. Read the real CI results.
+5. On each error, use the tracked retries ledger rather than endlessly creating fresh previews. Require a changed diagnosis after a repeat failure. Keep Vercel deployments off until a deliberate launch.
+6. When CI passes, review the remaining security, privacy, domain, Search Console and external-service tasks. An app can pass CI and still be unsafe in production.
+
+**Limits:** This is only possible if the AI can actually perform GitHub writes. Passing a URL to a text-only chat cannot grant permissions. The CI checks are static/build checks, not proof that external integrations, signup, checkout, auth policies or email deliverability work.
+
+**Click-by-click setup:** In ChatGPT use the available **Plugins/Apps/Connections** directory rather than assuming a fixed Settings path. Search for a GitHub integration and inspect its permitted actions. Claude Code and Codex generally work from a local checkout; a plain Claude web chat may not have the same tools.

@@ -164,3 +164,9 @@ OpenBuilder is community-driven. Bug reports, clearer onboarding instructions, r
 [MIT](LICENSE) © 2026 KAVentures and OpenBuilder contributors.
 
 OpenBuilder is an independent open-source project and is not affiliated with or endorsed by OpenAI, Anthropic, GitHub, Supabase, Vercel or Resend.
+
+## For chat agents without terminal access
+
+OpenBuilder includes **self-contained GitHub Actions** in each generated app template. A write-capable GitHub connector can copy a template into a **separate app repository**, create a PR and let CI run the audit and build without local commands. The app's CI is independent of this toolkit's CI. See [GitHub-only step-by-step instructions](docs/GETTING_STARTED.md#5-no-shell-github-only-build-recommended-for-ordinary-chat).
+
+Failed preview/deployment attempts use a tracked ledger (`.github/openbuilder/retries.json`) so later chats can see them. This is an auditable policy, not an enforcement mechanism for unrelated AI tools. Releases require fresh, commit-bound manual attestations and real external verification.
