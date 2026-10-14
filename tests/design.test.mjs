@@ -104,3 +104,51 @@ test('generated game CI also blocks custom UI until a documented design review e
  await fs.writeFile(path.join(app,'design-review.json'),JSON.stringify(completePlan(),null,2));
  assert.equal(run().status,0);
 });
+
+test('authorized SuperDesign and Canvas UI commands actually invoke their executables',async t=>{
+ if(process.platform==='win32')return t.skip('POSIX test-only fake executables');
+ const app=await fixture(t);
+ const mockDir=await fs.mkdtemp(path.join(os.tmpdir(),'ob-design-cli-'));
+ t.after(()=>fs.rm(mockDir,{recursive:true,force:true}));
+ const realPath=process.env.PATH;
+ const oldLog=process.env.OPENBUILDER_DESIGN_TEST_LOG;
+ const log=path.join(mockDir,'calls.txt');
+ const binary=(name)=>path.join(mockDir,name);
+ const upstream=[
+  '#!/bin/sh',
+  'if [ "$1" = "--help" ]; then exit 0; fi',
+  'echo "superdesign $*" >> "$OPENBUILDER_DESIGN_TEST_LOG"',
+  'exit 0'
+ ].join('\n')+'\n';
+ const registry=[
+  '#!/bin/sh',
+  'echo "npx $*" >> "$OPENBUILDER_DESIGN_TEST_LOG"',
+  'exit 0'
+ ].join('\n')+'\n';
+ await fs.writeFile(binary('superdesign'),upstream,{mode:0o755});
+ await fs.writeFile(binary('npx'),registry,{mode:0o755});
+ await fs.chmod(binary('superdesign'),0o755);
+ await fs.chmod(binary('npx'),0o755);
+ await fs.mkdir(path.join(app,'.superdesign','init'),{recursive:true});
+ for(const file of ['components.md','layouts.md','routes.md','theme.md','pages.md','extractable-components.md'])
+  await fs.writeFile(path.join(app,'.superdesign','init',file),'# valid initialization context');
+ await fs.writeFile(path.join(app,'.superdesign','design-system.md'),'# Actual design-system');
+ await fs.writeFile(path.join(app,'components.json'),'{}');
+ try{
+  process.env.PATH=mockDir+path.delimiter+realPath;
+  process.env.OPENBUILDER_DESIGN_TEST_LOG=log;
+  const a=await designAction({project:app,operation:'draft',projectId:'p-123',
+   title:'Home page',prompt:'Editorial home page with expressive typography',approveExternal:true});
+  assert.equal(a.generated,true);
+  const b=await designAction({project:app,operation:'canvas',component:'liquid-react',
+   approveExternal:true,acceptLicense:true});
+  assert.equal(b.installed,true);
+  const calls=await fs.readFile(log,'utf8');
+  assert.match(calls,/superdesign create-design-draft --project-id p-123 --title Home page/);
+  assert.match(calls,/npx shadcn@latest add @canvas-ui\/liquid-react/);
+ }finally{
+  process.env.PATH=realPath;
+  if(oldLog===undefined)delete process.env.OPENBUILDER_DESIGN_TEST_LOG;
+  else process.env.OPENBUILDER_DESIGN_TEST_LOG=oldLog;
+ }
+});
