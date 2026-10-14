@@ -20,3 +20,11 @@ test('both app templates include Dependabot and a GitHub Actions workflow',async
   await fs.access(path.join(root,'templates',template,'.github','workflows','ci.yml'));
  }
 });
+
+test('design reviewer is identical in toolkit and app templates',async()=>{
+ const master=await fs.readFile(path.join(root,'lib/design-review.mjs'));
+ for(const template of ['web','game']){
+  const installed=await fs.readFile(path.join(root,'templates',template,'scripts/design-review.mjs'));
+  assert.deepEqual(installed,master,template+' design evaluator must be kept in sync.');
+ }
+});

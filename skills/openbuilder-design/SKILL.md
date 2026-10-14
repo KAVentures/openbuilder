@@ -1,14 +1,17 @@
 ---
 name: openbuilder-design
-description: Accessible, performant UI design with optional SuperDesign skill and selective Canvas UI integration; works without a shell.
+description: Required first stage for every app frontend: use SuperDesign to generate an actual draft where executable, evaluate Canvas UI effects, implement the design, and verify it before release.
 ---
 
-# OpenBuilder Design
+# OpenBuilder Design Skill — Design → Code → Review
 
-Read docs/DESIGN.md in the OpenBuilder toolkit. Create or update DESIGN.md in the generated app before substantial UI work.
+Read `docs/DESIGN.md` and `AGENTS.md` in the OpenBuilder repository. **Do not start building the website's frontend before completing a distinctive app-specific design brief.** Create the application's `DESIGN.md` and `design-review.json`.
 
-Use the maintained https://github.com/superdesigndev/superdesign-skill for design exploration only where a command-executing agent has permission, prerequisites and authentication. Do not treat the older unmaintained SuperDesign IDE extension as the primary integration.
+1. **Use real SuperDesign when possible.** Check for a shell and installed skill; request authorization for installation, login and any generation credits. Follow the **maintained** upstream skill at https://github.com/superdesigndev/superdesign-skill, including initialization and a real design-draft command. Do not claim use merely because these instructions mention the tool. Prefer the skill's full design-draft flow; OpenBuilder's `design inspire` and `design draft` commands can invoke CLI actions but do not replace the upstream skill's preparation.
+2. **Inspect results and implement them.** Translate the actual selected design into code (typography, responsive layout, navigation, spacing, colors, content and component hierarchy). Store real SuperDesign project/draft IDs and implementation notes. Never fabricate them.
+3. **Evaluate Canvas UI during component selection.** Its MIT + Commons Clause code is not part of the OpenBuilder MIT template. Select and import a component from https://github.com/DavidHDev/canvas-ui only if visually appropriate, authorized, compatible and fast on mobile; otherwise record `not-suitable` with rationale. Respect reduced motion and browser fallback.
+4. **Verify.** Browser/screenshot review where possible, keyboard/focus and contrast, mobile and performance. Fix weak layout/content instead of blindly adding effects. Record actual results in `design-review.json`; mark `status=ready` only when complete. Run `npm run design:check` within a generated app or `openbuilder design check` in the toolkit CLI before release.
 
-Use https://github.com/DavidHDev/canvas-ui selectively for an effect when it helps, with review of its MIT + Commons Clause terms, mobile performance and accessibility. Do not vendor Canvas UI code into the MIT OpenBuilder toolkit by default.
+**No shell/ordinary chat:** SuperDesign CLI is unavailable. Use a deliberate design brief and implement with GitHub connector tools; mark `superdesign.status=unavailable`, not `used`. For full SuperDesign, guide the user to an execution-capable mode or coding agent. Keep design claims and external verification honest.
 
-In a normal AI chat without execution tools, use DESIGN.md as a portable design brief. Never claim that an unavailable CLI, browser test or live preview ran.
+Avoid needless preview deployments. External login, downloads, spending, and dependency additions require authorization.

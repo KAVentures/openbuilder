@@ -5,3 +5,7 @@ A playable HTML Canvas game from [OpenBuilder](https://github.com/KAVentures/ope
 Run **npm run check** and **npm test**, or use the included independent GitHub Actions. Automatic Vercel Git deployments are disabled; verify provider settings. Public indexing remains disabled until real domain/SEO settings are configured.
 
 See [CONNECT.md](CONNECT.md) and the [OpenBuilder launch checklist](https://github.com/KAVentures/openbuilder/blob/main/docs/LAUNCH.md).
+
+## Game visual design stage
+
+Create a coherent game art direction and interactions in `DESIGN.md`, with real review evidence in `design-review.json`. Use SuperDesign where it is genuinely available; Canvas UI is optional and usually unnecessary for a self-contained Canvas game. Run `npm run design:check` before treating the game as polished. The OpenBuilder release gate blocks an unfinished design review.

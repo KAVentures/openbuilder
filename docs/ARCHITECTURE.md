@@ -59,3 +59,7 @@ A maintainer can publish the web and game starters as separate **GitHub template
 Read docs/DESIGN.md for the maintained SuperDesign skill (optional CLI) and Canvas UI (optional MIT + Commons Clause components). The default app templates are not tied to their CLI or GPU runtimes.
 
 OpenBuilder's local **github** command inspects the current app's Git state and GitHub CLI authentication, then can attach an existing authorized remote or create a private repo after explicit confirmation. Normal chats use the GitHub connector when it provides a relevant write/create operation; otherwise https://github.com/new is a one-time user action **during the build**. The release gate detects missing GitHub origin. A configured remote alone does not prove the remote is accessible or its CI passed.
+
+## Design pipeline and reliability
+
+OpenBuilder's `lib/design.mjs` invokes the actual SuperDesign CLI for prompt search and draft generation **only after explicit consent** and upstream initialization. It can invoke Canvas UI's shadcn registry install only after a separate license acknowledgment, explicit consent and existing shadcn configuration. `lib/design-review.mjs` checks whether an app-specific design decision/review record exists, and starter projects contain a copy of this module for standalone CI/CLI checks. A non-executing chat takes an honest fallback path and cannot claim external generation occurred. Neither a completed record nor an automated check guarantees an aesthetic outcome; human visual QA remains essential.
