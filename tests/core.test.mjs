@@ -138,3 +138,65 @@ test('old evidence cannot qualify as verified launch evidence',async t=>{
  assert.equal(after.ready,false);
  assert.ok(after.steps.some(x=>x.name.startsWith('Manual:')&&x.status==='blocked'));
 });
+
+test('no-shell human-readable attempts are counted without SHA-256 fingerprints',async t=>{
+ const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ const file=path.join(dir,'.github','openbuilder','retries.json');
+ await fs.mkdir(path.dirname(file),{recursive:true});
+ await fs.writeFile(file,JSON.stringify({version:2,attempts:[
+  {at:'2026-10-14T12:00:00Z',kind:'preview',errorSummary:'Next build failed at page.tsx:41',rootCause:'typescript-build'},
+  {at:'2026-10-14T12:01:00Z',kind:'preview',errorSummary:'Next build failed at page.tsx:53',rootCause:'typescript-build'}
+ ],resets:[]}));
+ const result=await retryCommand({project:dir,operation:'allow',kind:'preview',signature:'Next build failed at page.tsx:78',rootCause:'typescript-build'});
+ assert.equal(result.used,2);
+ assert.equal(result.identicalFailures,2);
+ assert.equal(result.allowed,false);
+});
+test('CLI saves readable attempts and the next chat session can count them',async t=>{
+ const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ await retryCommand({project:dir,operation:'record',kind:'preview',signature:'Missing Vercel env variable',rootCause:'env-missing'});
+ const state=JSON.parse(await fs.readFile(path.join(dir,'.github/openbuilder/retries.json'),'utf8'));
+ assert.equal(state.attempts.length,1);
+ assert.equal(state.attempts[0].errorSummary,'Missing Vercel env variable');
+ assert.equal(state.attempts[0].rootCause,'env-missing');
+ assert.equal((await retryCommand({project:dir,operation:'allow',kind:'preview',signature:'Missing Vercel env variable'})).identicalFailures,1);
+});
+test('a malformed manual ledger fails closed instead of granting retries',()=>{
+ assert.throws(()=>decideRetry({attempts:[{kind:'preview',errorSummary:'error'}]},'preview','error'),/malformed/);
+ assert.throws(()=>decideRetry({attempts:'fake'},'deploy','failure'),/malformed/);
+});
+test('Git repository requirement has a clear action before attestation',async t=>{
+ const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ const app=await scaffold({name:'no-git-app',template:'game',parent:dir});
+ const report=await release(app);
+ const git=report.steps.find(s=>s.name==='Git repository');
+ assert.equal(git.status,'blocked');
+ assert.match(git.detail,/git init/);
+ assert.match(report.steps.find(s=>s.name==='Manual: rollback').detail,/git init/);
+});
+test('an app nested in a parent Git repository must create its own Git history',async t=>{
+ const dir=await temp();t.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ const git=args=>execFileSync('git',args,{cwd:dir,stdio:'ignore'});
+ git(['init']);git(['config','user.name','OpenBuilder Tests']);git(['config','user.email','tests@example.invalid']);
+ await fs.writeFile(path.join(dir,'README.md'),'Parent repo');
+ git(['add','.']);git(['commit','-m','parent']);
+ const app=await scaffold({name:'my-app',template:'game',parent:dir});
+ const report=await release(app);
+ assert.equal(report.steps.find(s=>s.name==='Git repository').status,'blocked');
+});
+
+test('CLI never commits raw secret-shaped values in readable retry history',async tt=>{
+ const dir=await temp();tt.after(()=>fs.rm(dir,{recursive:true,force:true}));
+ const token='sk-proj-'+'A'.repeat(42);
+ await retryCommand({project:dir,operation:'record',kind:'preview',signature:'Build failed: '+token,rootCause:'secrets-config'});
+ const raw=await fs.readFile(path.join(dir,'.github/openbuilder/retries.json'),'utf8');
+ assert.equal(raw.includes(token),false);
+ assert.match(raw,/REDACTED_KEY/);
+ assert.equal((await retryCommand({project:dir,operation:'allow',kind:'preview',signature:'Build failed: '+token,rootCause:'secrets-config'})).identicalFailures,1);
+});
+test('publishing templates is dry-run by default and never needs GitHub credentials to plan',()=>{
+ const cli=execFileSync(process.execPath,['scripts/publish-template-repos.mjs'],{cwd:path.resolve(''),encoding:'utf8'});
+ assert.match(cli,/DRY RUN ONLY/);
+ assert.match(cli,/openbuilder-web-template/);
+ assert.match(cli,/openbuilder-game-template/);
+});

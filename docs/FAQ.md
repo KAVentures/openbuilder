@@ -43,3 +43,11 @@ You can use, modify, copy and distribute the code—including commercially—whi
 ### Can I contribute?
 
 Absolutely. Start with [CONTRIBUTING.md](../CONTRIBUTING.md), add a reproducible issue and propose a focused PR with tests.
+
+### How do I avoid transferring a large template one file at a time?
+
+GitHub's **Use this template** button can create a complete app repository with hidden files and a lockfile. OpenBuilder includes a [maintainer publishing tool](PUBLISH_TEMPLATES.md) for standalone web/game template repositories, but the repositories must be published and verified before that button is available. Until then, use the GitHub full-tree copy path.
+
+### Do I have to calculate a hash to record a failed preview?
+
+No. Append a readable `at` timestamp, `kind`, `errorSummary` and consistent `rootCause` label to the app repo's tracked `attempts` list. The CLI understands these entries. It is still an agent-followed guardrail, not an interceptor of arbitrary connectors.

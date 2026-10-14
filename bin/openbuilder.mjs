@@ -13,7 +13,7 @@ Usage:
   node bin/openbuilder.mjs init <name> --template web|game [--dir <parent>]
   node bin/openbuilder.mjs check [project-path] [--json] [--strict]
   node bin/openbuilder.mjs preview [project-path] [--port 4173]
-  node bin/openbuilder.mjs retry allow|record --kind preview|deploy --signature <error-id> [--project <path>]
+  node bin/openbuilder.mjs retry allow|record --kind preview|deploy --signature <error-summary> [--root-cause <label>] [--project <path>]
   node bin/openbuilder.mjs retry reset --reason <reason> --owner-approved [--project <path>]
   node bin/openbuilder.mjs release [project-path] [--json]
 
@@ -30,7 +30,7 @@ async function main() {
     const {values,positionals}=argv(args,{template:{type:'string',default:'web'},dir:{type:'string',default:'.'}});
     if (!positionals[0]) throw Error('Provide a project name.');
     const dir=await scaffold({name:positionals[0],template:values.template,parent:values.dir});
-    console.log(`Created ${dir}\nNext: cd ${path.relative(process.cwd(),dir) || '.'} && npm install (web only).\nRead CONNECT.md for optional services.`);
+    console.log(`Created ${dir}\nNext: cd ${path.relative(process.cwd(),dir) || '.'} && npm ci (web only).\nRead CONNECT.md for optional services.`);
     return;
   }
   if (cmd==='check') {
@@ -54,8 +54,8 @@ async function main() {
     return;
   }
   if (cmd==='retry') {
-    const {values,positionals}=argv(args,{kind:{type:'string'},signature:{type:'string'},project:{type:'string',default:'.'},reason:{type:'string'},'owner-approved':{type:'boolean',default:false}});
-    const result=await retryCommand({operation:positionals[0],kind:values.kind,signature:values.signature,project:path.resolve(values.project),reason:values.reason,ownerApproved:values['owner-approved']});
+    const {values,positionals}=argv(args,{kind:{type:'string'},signature:{type:'string'},'root-cause':{type:'string'},project:{type:'string',default:'.'},reason:{type:'string'},'owner-approved':{type:'boolean',default:false}});
+    const result=await retryCommand({operation:positionals[0],kind:values.kind,signature:values.signature,rootCause:values['root-cause'],project:path.resolve(values.project),reason:values.reason,ownerApproved:values['owner-approved']});
     console.log(JSON.stringify(result,null,2));
     if(!result.allowed) process.exitCode=2;
     return;

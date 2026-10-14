@@ -123,7 +123,7 @@ Accounts and connected tools belong to **you**. OpenBuilder does not require giv
 | **AI playbook** | [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md) and [portable agent skill](skills/openbuilder/SKILL.md) |
 | **Templates** | Next.js/TypeScript web starter and a playable mobile-friendly HTML Canvas game |
 | **Local previews** | Local dev server—no automatic Vercel deployment to view changes |
-| **Retry limits** | A CLI-backed retry ledger that agents can consult; **does not intercept** unrelated provider calls |
+| **Retry limits** | Human-readable Git-tracked attempt history plus CLI limits; **does not intercept** unrelated provider calls |
 | **Security audit** | Static checks for some credential exposures, tracked env files and unsafe configuration; not a full security audit |
 | **Launch review** | Feature-aware checklist, local tests/build and manually supplied evidence; production checks remain separate |
 | **SEO guidance** | Sitemap, metadata, indexing, crawlability, performance and editorial checklist |
@@ -170,3 +170,9 @@ OpenBuilder is an independent open-source project and is not affiliated with or 
 OpenBuilder includes **self-contained GitHub Actions** in each generated app template. A write-capable GitHub connector can copy a template into a **separate app repository**, create a PR and let CI run the audit and build without local commands. The app's CI is independent of this toolkit's CI. See [GitHub-only step-by-step instructions](docs/GETTING_STARTED.md#5-no-shell-github-only-build-recommended-for-ordinary-chat).
 
 Failed preview/deployment attempts use a tracked ledger (`.github/openbuilder/retries.json`) so later chats can see them. This is an auditable policy, not an enforcement mechanism for unrelated AI tools. Releases require fresh, commit-bound manual attestations and real external verification.
+
+## Starter repository publishing
+
+OpenBuilder's web and game starters currently live inside this toolkit. GitHub's **Use this template** feature needs a standalone repository for each starter. A [maintainer publishing script](docs/PUBLISH_TEMPLATES.md) prepares the two public template repositories and enables that button after explicit GitHub authorization. **Until they have actually been published, use the documented GitHub full-tree copy fallback.** No nonexistent template links are advertised.
+
+Both starters have a weekly [Dependabot](https://docs.github.com/en/code-security/dependabot) configuration for npm and GitHub Actions, and toolkit CI checks that their audit scanners match the master.

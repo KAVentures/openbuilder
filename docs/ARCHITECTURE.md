@@ -22,7 +22,7 @@ A universal remote MCP server must be deployed, authenticate individual users to
 - `check` is a heuristic **static** scanner. It does not read Git's entire history or substitute for secret scanners, type checkers, DAST, pentesting or provider audits.
 - `retry` records failed attempts the agent reports; it cannot intercept GitHub/Vercel actions taken through an unrelated connector. Adapters should call it consistently.
 - `release` is local execution plus honest attestation. It does not deploy. A production launch should also use follow-up smoke tests and monitoring.
-- The Next.js template needs `npm install` on first use. Dependencies are semver-ranged; commit the generated lockfile for reproducible future builds and update for security fixes.
+- The Next.js template includes an exact-version package manifest and committed npm lockfile; use `npm ci` for reproducible installs. Each starter includes weekly Dependabot checks for npm and GitHub Actions.
 - An in-chat preview is only possible if the host platform supports secure embedded components or provides a browser/sandbox environment. Ordinary chat cannot execute arbitrary web servers.
 
 ## Roadmap, in priority order
@@ -40,8 +40,16 @@ Prompt injection from repositories, dependency scripts, supply-chain packages, u
 
 ## Cross-session retry tracking
 
-Generated apps include a **tracked** `.github/openbuilder/retries.json` file; CLI retries write to it. GitHub-connected chat agents should update it in the app PR whenever they attempt a preview or deployment, and re-read it in later sessions. A dishonest agent can ignore or reset it, and concurrent writes are not transactional: it is a shared audit trail, **not a universal enforcement hook**. Vercel automatic Git deployments are separately disabled by template configuration.
+Generated apps include a **tracked** `.github/openbuilder/retries.json` file. It contains human-readable `attempts` objects (`at`, `kind`, `errorSummary`, optional `rootCause`) that no-shell chat agents can append to without hashing. CLI retries write to the same list. GitHub-connected chat agents should update it in the app PR whenever they attempt a preview or deployment, and re-read it in later sessions. A dishonest agent can ignore or reset it, and concurrent writes are not transactional: it is a shared audit trail, **not a universal enforcement hook**. Vercel automatic Git deployments are separately disabled by template configuration.
 
 ## No-shell app CI
 
 Each template has its own `.github/workflows/ci.yml`, `scripts/audit.mjs` and `scripts/check.mjs`. The web project has a committed npm lockfile and runs `npm ci`; the game is dependency-free. When copying a template through GitHub's connector, include dotfiles and hidden workflows. Toolkit CI and generated app CI are separate.
+
+## Single source for audit checks
+
+The main audit is `lib/audit.mjs`, copied verbatim to each template at `templates/{web,game}/scripts/audit.mjs`. `tests/template-integrity.test.mjs` fails CI if these copies diverge. Any audit update must update all three. Individual generated repositories receive a standalone copy because they cannot depend on the OpenBuilder source tree.
+
+## Template repositories
+
+A maintainer can publish the web and game starters as separate **GitHub template repositories** using `scripts/publish-template-repos.mjs` with explicit approval. See `docs/PUBLISH_TEMPLATES.md`. This cannot be completed through GitHub's file-editing connector alone. Once published, ordinary chat users can create a new app repo using **Use this template**, without a multi-file transfer. Future template updates still require synchronization PRs.
