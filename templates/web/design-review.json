@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "status": "pending",
+  "product": {
+    "goal": "",
+    "audience": ""
+  },
+  "direction": {
+    "concept": "",
+    "typeface": "",
+    "palette": {
+      "background": "",
+      "foreground": "",
+      "primary": "",
+      "surface": "",
+      "accent": ""
+    }
+  },
+  "pages": [],
+  "superdesign": {
+    "status": "not-run",
+    "projectId": "",
+    "draftId": "",
+    "implementation": "",
+    "reason": ""
+  },
+  "canvasUi": {
+    "decision": "pending",
+    "component": "",
+    "implementation": "",
+    "reason": ""
+  },
+  "review": {
+    "mobile": {
+      "done": false,
+      "evidence": ""
+    },
+    "accessibility": {
+      "done": false,
+      "evidence": ""
+    },
+    "performance": {
+      "done": false,
+      "evidence": ""
+    },
+    "visual": {
+      "done": false,
+      "evidence": ""
+    }
+  },
+  "competitorResearch": {
+    "status": "pending",
+    "industry": "",
+    "queries": [],
+    "candidates": [],
+    "selectedUrl": "",
+    "whyChosen": "",
+    "adaptedPatterns": [],
+    "originality": {
+      "distinctBrand": "",
+      "assetsAndFonts": "",
+      "effects": "",
+      "fit": ""
+    }
+  }
+}

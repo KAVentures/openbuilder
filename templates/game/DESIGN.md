@@ -16,3 +16,7 @@ Start with subtle CSS. Honor prefers-reduced-motion. Optional Canvas UI canvas/W
 
 ## References
 See https://github.com/KAVentures/openbuilder/blob/main/docs/DESIGN.md for optional maintained SuperDesign skill integration and Canvas UI effects. Neither is required or automatically installed.
+
+## SuperDesign-unavailable competitor fallback
+
+If SuperDesign cannot execute, search and visually inspect three or more relevant competitor websites using actual tools. Compare layouts, typography, effects, color and mobile behavior, and select the most suitable well-designed reference. Implement the **underlying ideas**, not the competitor's exact brand, copy, photos, proprietary scripts or unlicensed fonts. Record evidence in `design-review.json` under `competitorResearch`. No browser means no truthful visual comparison; don't mark it complete. See https://github.com/KAVentures/openbuilder/blob/main/docs/COMPETITOR_DESIGN.md.

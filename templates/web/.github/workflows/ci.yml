@@ -16,5 +16,7 @@ jobs:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
       - run: npm run check
+      - name: Report design-review readiness (starter is intentionally pending)
+        run: node scripts/design-check.mjs
       - run: npm test
       - run: npm run build

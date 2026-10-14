@@ -7,6 +7,7 @@ import { preview } from '../lib/preview.mjs';
 import { retryCommand } from '../lib/retry.mjs';
 import { release } from '../lib/release.mjs';
 import { githubAction } from '../lib/github.mjs';
+import { designAction } from '../lib/design.mjs';
 
 const help = `OpenBuilder 0.1 — local-first app builder guardrails
 
@@ -17,6 +18,10 @@ Usage:
   node bin/openbuilder.mjs retry allow|record --kind preview|deploy --signature <error-summary> [--root-cause <label>] [--project <path>]
   node bin/openbuilder.mjs retry reset --reason <reason> --owner-approved [--project <path>]
   node bin/openbuilder.mjs release [project-path] [--json]
+  node bin/openbuilder.mjs design status|check [--project <path>]
+  node bin/openbuilder.mjs design inspire --query <style> --approve-external [--project <path>]
+  node bin/openbuilder.mjs design draft --project-id <id> --title <title> --prompt <direction> --approve-external [--project <path>]
+  node bin/openbuilder.mjs design canvas --component liquid-react --approve-external --accept-canvas-license [--project <path>]
   node bin/openbuilder.mjs github status [--project <path>]
   node bin/openbuilder.mjs github create [--name <repo-name>] [--visibility private|public] --confirm [--project <path>]
   node bin/openbuilder.mjs github connect --repo owner/name --confirm [--project <path>]
@@ -62,6 +67,21 @@ async function main() {
     const result=await retryCommand({operation:positionals[0],kind:values.kind,signature:values.signature,rootCause:values['root-cause'],project:path.resolve(values.project),reason:values.reason,ownerApproved:values['owner-approved']});
     console.log(JSON.stringify(result,null,2));
     if(!result.allowed) process.exitCode=2;
+    return;
+  }
+  if (cmd==='design') {
+    const {values,positionals}=argv(args,{
+      project:{type:'string',default:'.'},query:{type:'string'},
+      'project-id':{type:'string'},title:{type:'string'},prompt:{type:'string'},
+      component:{type:'string'},'approve-external':{type:'boolean',default:false},
+      'accept-canvas-license':{type:'boolean',default:false}
+    });
+    const result=await designAction({project:path.resolve(values.project),operation:positionals[0],
+      query:values.query,projectId:values['project-id'],title:values.title,prompt:values.prompt,
+      component:values.component,approveExternal:values['approve-external'],
+      acceptLicense:values['accept-canvas-license']});
+    console.log(JSON.stringify(result,null,2));
+    if(positionals[0]==='check'&&!result.designReady)process.exitCode=1;
     return;
   }
   if (cmd==='github') {

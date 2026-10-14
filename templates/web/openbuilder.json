@@ -9,7 +9,8 @@
     "payments": false,
     "ai": false,
     "personalData": false,
-    "indexed": true
+    "indexed": true,
+    "designQuality": true
   },
   "deployment": {
     "provider": "vercel",

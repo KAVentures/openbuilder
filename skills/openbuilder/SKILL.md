@@ -8,6 +8,7 @@ description: Build and launch secure web apps and browser games with the user's 
 Load `AGENTS.md`, `docs/CONNECTORS.md`, `docs/GITHUB.md`, `docs/DESIGN.md`, `docs/LAUNCH.md`. Use the user’s own GitHub, Supabase, Vercel and Resend connections when required. Do not request or reveal API credentials.
 
 When a user asks to build:
+0. **Before frontend coding, run the design-to-code stage in skills/openbuilder-design/SKILL.md**; SuperDesign is preferred where its real CLI is executable and authorized; otherwise search and visually inspect live competitor websites (see docs/COMPETITOR_DESIGN.md), not a generic design-brief-only fallback; evaluate Canvas UI selectively. Record evidence in the app's design-review.json. The local release gate requires a completed design review for starter web/game apps.
 1. Choose `web` (Next.js) or `game` (static Canvas) and explain why in plain language.
 2. Establish the GitHub app repository early: connect an existing one, or request approval for a private new one through a supported tool. If repo creation isn't possible in chat, guide the user to https://github.com/new and resume after they share the app URL. Never merely mention the missing repo in a final footnote. Inspect tool availability, ask for authorization at the right stage, and never imply that installing a repository automatically installs AI connectors.
 3. Create a branch, generate source code, apply changes, test through command execution or GitHub CI, then preview locally if supported.

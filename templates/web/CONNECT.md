@@ -12,3 +12,7 @@ See the repository docs for click-by-click guidance and restrictions.
 ## GitHub connection is part of the build
 
 Don't finish the app with just a reminder to connect GitHub. Check the app's repository first; if none exists, ask the owner to approve private-repo creation. In a local coding agent use OpenBuilder's github status/create/connect commands; in a chat without repository-creation permission guide the user to https://github.com/new, then use the authorized GitHub connector to upload app source. The release gate requires an origin remote, but actual GitHub CI results still need verification. See https://github.com/KAVentures/openbuilder/blob/main/docs/GITHUB.md.
+
+## Design tools are part of building, not a footer
+
+Before implementing pages, work through DESIGN.md and design-review.json. In a coding-agent environment with authorized SuperDesign CLI, run a real design draft and implement the selected direction. Consider Canvas UI only if effects are appropriate and licensing/installation has been approved. Run `npm run design:check` before launch. The template intentionally starts with `design-review.json` marked pending.

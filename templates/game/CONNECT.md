@@ -9,3 +9,7 @@ Only connect Supabase for game features that actually need accounts, shared scor
 ## GitHub connection for sharing the game
 
 GitHub isn't needed to play locally. When publishing, the agent must actively connect an existing authorized GitHub repo or request consent to create a private new one. If it has no repository-creation tool, guide the user to https://github.com/new **before finishing** and save the app there with the GitHub connector. See https://github.com/KAVentures/openbuilder/blob/main/docs/GITHUB.md.
+
+## Design review
+
+Use DESIGN.md and design-review.json when designing the game. SuperDesign can help with visual directions if it is actually executable; do not claim its use when unavailable. A Canvas UI runtime is not a requirement for a plain Canvas game. Run `npm run design:check` and review keyboard, touch, motion and low-powered hardware before launch.

@@ -179,8 +179,25 @@ Both starters have a weekly [Dependabot](https://docs.github.com/en/code-securit
 
 ## Design: SuperDesign + Canvas UI
 
-OpenBuilder now includes a [design-first workflow](docs/DESIGN.md). It can use the **maintained** [SuperDesign skill](https://github.com/superdesigndev/superdesign-skill) in compatible coding agents for visual direction, and selectively use [Canvas UI](https://github.com/DavidHDev/canvas-ui) for interactive effects. Neither is forced into every generated app; Canvas UI's **MIT + Commons Clause** license and mobile performance needs are respected. Chat-only users get the same design brief without requiring a shell.
+OpenBuilder now has an **executable, review-gated [design-first workflow](docs/DESIGN.md)**: SuperDesign draft generation when its real CLI is authorized, Canvas UI component selection where appropriate, followed by responsive implementation and visual review. It can use the **maintained** [SuperDesign skill](https://github.com/superdesigndev/superdesign-skill) in compatible coding agents for visual direction, and selectively use [Canvas UI](https://github.com/DavidHDev/canvas-ui) for interactive effects. Neither is forced into every generated app; Canvas UI's **MIT + Commons Clause** license and mobile performance needs are respected. Chat-only users get the same design brief without requiring a shell.
 
 ## Automatic GitHub handoff
 
 OpenBuilder now treats GitHub as a **required source-control step**. It checks for an existing app repo and, when authorized, can attach to it or create a new **private** repository with GitHub CLI in a local coding agent. In ordinary chat, the agent must check whether a GitHub connector actually supports repository creation; if it does not, it must guide the user to [GitHub's new repository page](https://github.com/new) before finishing, then push code using the available write tools. [Exact instructions and local commands](docs/GITHUB.md). No unauthorized repository or Vercel deployment is created.
+
+### Design CLI quick start (after creating your app)
+
+~~~bash
+node bin/openbuilder.mjs design status --project ../my-app
+# Requires actual SuperDesign CLI installation/login and user approval:
+node bin/openbuilder.mjs design inspire --project ../my-app --query "modern editorial product website" --approve-external
+# After the real SuperDesign skill initialization:
+node bin/openbuilder.mjs design draft --project ../my-app --project-id REAL_PROJECT_ID --title "Homepage" --prompt "An elegant responsive homepage" --approve-external
+node bin/openbuilder.mjs design check --project ../my-app
+~~~
+
+Generated web/game projects ship a `design-review.json` that **starts pending** and an `npm run design:check` command. OpenBuilder's `release` blocks until the design has been genuinely reviewed. This is a stronger workflow, **not a guarantee of subjective beauty** or a claim SuperDesign ran in ordinary shell-less chat. Canvas UI installation remains selective, license-aware and approval-gated.
+
+### Reference-driven design when SuperDesign is unavailable
+
+Instead of a generic AI theme, agents with browser/search access must **research actual competitor websites in the target field**, inspect at least three rendered pages, compare their visual quality and choose a strong reference. OpenBuilder then adapts its design patterns (layout, typography categories, color relationships and effects) into **original implementation** with the new product's branding and licensed fonts/assets. A high search rank is not the same as excellent design. The app records real source URLs and observations in `competitorResearch`; if tools cannot visually inspect those sites, the release gate stays incomplete. [See the fallback instructions](docs/COMPETITOR_DESIGN.md).

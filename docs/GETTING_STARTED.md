@@ -199,3 +199,13 @@ Git may ask you to configure a username/email first. The release gate now explai
 OpenBuilder's [design workflow](DESIGN.md) includes the optional maintained SuperDesign skill and Canvas UI effects. No extra visual package is installed unless needed and authorized.
 
 **GitHub is part of building**, not a footer note. A chat agent should first inspect the current app repository and connector permissions. With write/create access, it can work in a new private repo after your approval. Without a create-repository tool, it should guide you to https://github.com/new, then commit the app into that repo. Local agents can use **node bin/openbuilder.mjs github status**, **github connect**, and **github create** with explicit approval. See [GitHub handoff instructions](GITHUB.md).
+
+## 8. Design stage — SuperDesign and Canvas UI
+
+After creating the app repository but **before frontend implementation**, ask your AI to follow [OpenBuilder's design pipeline](DESIGN.md): create a distinctive design brief, actually invoke the maintained SuperDesign skill in a coding environment where supported and authorized, evaluate whether a Canvas UI effect fits the site, implement the design, and review mobile/desktop visuals. The app's `design-review.json` documents what truly ran; the `design:check` command and local release gate expose missing design work.
+
+An ordinary chat that cannot execute a shell cannot secretly run the SuperDesign CLI. Use a supported coding agent or execution-capable mode for the full experience. Do not claim the site was generated with SuperDesign when you only used OpenBuilder's prompts.
+
+## Design reference fallback for normal AI chats
+
+When SuperDesign's CLI cannot run, OpenBuilder should **automatically search the web for competing websites in your field** and visually review at least three real sites before writing the frontend. It chooses a well-designed, relevant reference, adapts its layout/typography/motion ideas into original code and branding, and documents its research. A highly ranked search result is **not automatically the best design**. This requires real search and visual browsing tools; if unavailable, the agent should request a browsing-capable environment or user reference screenshots, not invent research. [Details →](COMPETITOR_DESIGN.md).
