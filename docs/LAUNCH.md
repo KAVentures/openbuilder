@@ -76,3 +76,7 @@ Pre-deployment required keys: `rollback`, `error_tracking`, `mobile`, `performan
 The local `release` gate now requires every attestation to include the **current Git HEAD SHA** as `commitSha` and a timestamp `at` from within the past **seven days** (up to five minutes clock skew). Old evidence and evidence for another commit cannot pass. A new commit after attestation means relevant checks must be repeated. The checks remain **self-attestations** and are not independent proof.
 
 On Windows, npm execution uses `cmd.exe`; on failure OpenBuilder surfaces redacted diagnostic output rather than a silent 'blocked' result.
+
+### New project not initialized as Git
+
+If the release gate says **Git repository** is missing, initialize the **generated app**, not the OpenBuilder toolkit, using `git init`, `git add .` and `git commit -m "Initial app"`. Then run the release checks again. A repository without an initial commit has no valid revision to bind attestations to.

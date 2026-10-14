@@ -141,7 +141,7 @@ Retry tracking is voluntary for an AI/agent using the CLI:
 
 ~~~bash
 node bin/openbuilder.mjs retry allow --kind preview --signature "build error" --project ../my-first-game
-node bin/openbuilder.mjs retry record --kind preview --signature "build error" --project my-first-game
+node bin/openbuilder.mjs retry record --kind preview --signature "build error" --project ../my-first-game
 ~~~
 
 It is **not** a magical interceptor of third-party connector actions.
@@ -173,11 +173,23 @@ Use this when your AI can **read and write GitHub** but cannot run commands. A u
 
 1. Give the AI the `KAVentures/openbuilder` URL and ask it to read `AGENTS.md`.
 2. Create **another empty GitHub repository for the app**, or ask the AI to create one if its GitHub integration permits it. Tell it that the OpenBuilder source repository is just the **toolkit**.
-3. Tell the AI to retrieve the *entire file tree* from `templates/web/` or `templates/game/` and copy those files into your app repo's **root**. Do not forget hidden `.github/workflows/ci.yml` and `.github/openbuilder/retries.json`; those files carry the independently running checks and retry history. Preserve `scripts/check.mjs` and `scripts/audit.mjs`. For a web app personalize `package.json` and the root and `packages[""]` names in `package-lock.json`.
+3. **Best once available:** use GitHub's **Use this template** from a verified published official OpenBuilder web/game template repo. This creates your own complete app repository without the agent copying 20+ files and a large lockfile. See [template publishing status](PUBLISH_TEMPLATES.md). **Until these repositories are actually published**, tell the AI to retrieve the *entire file tree* from `templates/web/` or `templates/game/` and copy those files into your app repo's **root**. Do not forget hidden `.github/workflows/ci.yml` and `.github/openbuilder/retries.json`; those files carry the independently running checks and retry history. Preserve `scripts/check.mjs` and `scripts/audit.mjs`. For a web app personalize `package.json` and the root and `packages[""]` names in `package-lock.json`.
 4. Ask it to implement the requested feature in a **pull request**. The new app repository's GitHub Actions run the tests and security heuristics automatically, without a shell in the AI conversation. Read the real CI results.
-5. On each error, use the tracked retries ledger rather than endlessly creating fresh previews. Require a changed diagnosis after a repeat failure. Keep Vercel deployments off until a deliberate launch.
+5. On each failed preview/deployment, append a human-readable object to the tracked `attempts` list in `.github/openbuilder/retries.json` (actual `at` ISO time, `kind`, short `errorSummary`, stable `rootCause` label, `source: "chat"`). No hashes or shell are required. Read that ledger in new chats. On each error, use the tracked retry budget rather than endlessly creating fresh previews. Require a changed diagnosis after a repeat failure. Keep Vercel deployments off until a deliberate launch.
 6. When CI passes, review the remaining security, privacy, domain, Search Console and external-service tasks. An app can pass CI and still be unsafe in production.
 
 **Limits:** This is only possible if the AI can actually perform GitHub writes. Passing a URL to a text-only chat cannot grant permissions. The CI checks are static/build checks, not proof that external integrations, signup, checkout, auth policies or email deliverability work.
 
 **Click-by-click setup:** In ChatGPT use the available **Plugins/Apps/Connections** directory rather than assuming a fixed Settings path. Search for a GitHub integration and inspect its permitted actions. Claude Code and Codex generally work from a local checkout; a plain Claude web chat may not have the same tools.
+
+## 6. If the release gate asks for a Git commit
+
+Local starter folders don't automatically have Git history. In the **generated app directory** (not the OpenBuilder checkout), run:
+
+~~~bash
+git init
+git add .
+git commit -m "Initial app"
+~~~
+
+Git may ask you to configure a username/email first. The release gate now explains this directly. Evidence must be associated with the app's current Git commit and must be verified within seven days.
